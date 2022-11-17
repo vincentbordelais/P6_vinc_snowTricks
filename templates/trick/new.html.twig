@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+{% form_theme formTrick 'bootstrap_5_layout.html.twig' %}
+{% block title %}Creation d'un Trick
+{% endblock %}
+
+{% block body %}
+	<h1>Creation d'un trick</h1>
+	{{ form_start(formTrick) }}
+	<div
+		class="my-custom-class-for-errors">{# {{ form_errors(formTrick) }} #}
+	</div>
+
+	{{ form_row(formTrick.name, {'attr' : {'placeholder' : "Nom" }}) }}
+
+	{{ form_row(formTrick.description, {'attr' : {'placeholder' : "Description" }}) }}
+
+	<button type="submit" class="btn btn-success">Enregistrer</button>
+	{{ form_end(formTrick) }}
+{% endblock %}
