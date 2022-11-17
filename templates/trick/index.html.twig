@@ -1,20 +1,23 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello TrickController!{% endblock %}
+{% block title %}Liste de Tricks
+{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
-
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
-
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code><a href="{{ '/Users/vinc/Documents/Docus Dev/Alternance 2022/ OC/P6/vinc_snowTricks/src/Controller/TrickController.php'|file_link(0) }}">src/Controller/TrickController.php</a></code></li>
-        <li>Your template at <code><a href="{{ '/Users/vinc/Documents/Docus Dev/Alternance 2022/ OC/P6/vinc_snowTricks/templates/trick/index.html.twig'|file_link(0) }}">templates/trick/index.html.twig</a></code></li>
-    </ul>
-</div>
+	<section class="trick">
+		{% for trick in tricks %}
+			<article>
+				<h2>{{ trick.name }}</h2>
+				<div class="metadata">Ecrit le
+					{{ trick.createdDate | date('d/m/Y') }}
+					à
+					{{ trick.createdDate | date('h:m') }}
+				</div>
+				<div class="content">
+					<p>{{ trick.description | raw }}</p>
+					<a href="{{ path('trick_showOne', {'id':trick.id}) }}" class="btn btn-primary">Lire la suite</a>
+				</div>
+			</article>
+		{% endfor %}
+	</section>
 {% endblock %}

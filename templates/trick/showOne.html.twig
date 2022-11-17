@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Un Trick
+{% endblock %}
+
+{% block body %}
+	<section class="trick">
+		<article>
+			<h2>Titre</h2>
+			<div class="metadata">
+				{{ trick.name }}</div>
+			<div class="content">
+				<p>{{ trick.description }}
+				</p>
+			</div>
+			<div>Créé le
+				{{ trick.createdDate| date('d/m/Y') }}
+				à
+				{{ trick.createdDate | date('h:m') }}</div>
+		</article>
+	</section>
+{% endblock %}
