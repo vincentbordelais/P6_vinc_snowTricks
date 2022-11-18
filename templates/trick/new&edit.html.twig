@@ -1,19 +1,35 @@
 {% extends 'base.html.twig' %}
 {% form_theme formTrick 'bootstrap_5_layout.html.twig' %}
-{% block title %}Creation d'un Trick
+{% block title %}
+	{% if editMode %}
+		Mise à jour d'un Trick
+	{% else %}
+		Creation d'un Trick
+	{% endif %}
 {% endblock %}
 
 {% block body %}
-	<h1>Creation d'un trick</h1>
+	{% if editMode %}
+		<h1>Mise à jour d'un Trick</h1>
+	{% else %}
+		<h1>Creation d'un Trick</h1>
+	{% endif %}
 	{{ form_start(formTrick) }}
 	<div
 		class="my-custom-class-for-errors">{# {{ form_errors(formTrick) }} #}
 	</div>
 
+	{# {{ form_errors(formTrick.name) }} #}
 	{{ form_row(formTrick.name, {'attr' : {'placeholder' : "Nom" }}) }}
 
 	{{ form_row(formTrick.description, {'attr' : {'placeholder' : "Description" }}) }}
 
-	<button type="submit" class="btn btn-success">Enregistrer</button>
+	<button type="submit" class="btn btn-success">
+		{% if editMode %}
+			Modifier le Trick
+		{% else %}
+			Créer le Trick
+		{% endif %}
+	</button>
 	{{ form_end(formTrick) }}
 {% endblock %}
