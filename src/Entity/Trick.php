@@ -16,10 +16,12 @@ class Trick
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Le nom ne doit pas être vide')]
     #[Assert\Length(min: 6, minMessage: 'Minimum {{ limit }} caractères')] // validation côté serveur
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: 'La description ne doit pas être vide')]
     #[Assert\Length(min: 9, minMessage: 'Minimum {{ limit }} caractères')]
     private ?string $description = null;
 

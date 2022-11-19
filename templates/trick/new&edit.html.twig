@@ -14,12 +14,8 @@
 	{% else %}
 		<h1>Creation d'un Trick</h1>
 	{% endif %}
-	{{ form_start(formTrick) }}
-	<div
-		class="my-custom-class-for-errors">{# {{ form_errors(formTrick) }} #}
-	</div>
+	{{ form_start(formTrick, {'attr': {'novalidate': 'novalidate'}}) }}
 
-	{# {{ form_errors(formTrick.name) }} #}
 	{{ form_row(formTrick.name, {'attr' : {'placeholder' : "Nom" }}) }}
 
 	{{ form_row(formTrick.description, {'attr' : {'placeholder' : "Description" }}) }}

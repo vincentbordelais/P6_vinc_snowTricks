@@ -12,8 +12,14 @@ class TrickType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('name')
-            ->add('description');
+            ->add('name', null, [
+                'label' => 'Nom',
+                'empty_data' => ''
+            ])
+            ->add('description', null, [
+                'label' => 'Description',
+                'empty_data' => ''
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
