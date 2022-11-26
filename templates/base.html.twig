@@ -22,23 +22,32 @@
 	<body>
 		<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
 			<div class="container-fluid">
-				<a class="navbar-brand" href="/">snowTRICKS</a>
+				<a class="navbar-brand" href="{{ path('trick_home') }}">snowTRICKS</a>
 				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
 					<span class="navbar-toggler-icon"></span>
 				</button>
 				<div class="collapse navbar-collapse" id="navbarColor01">
 					<ul class="navbar-nav me-auto">
 						<li class="nav-item">
-							<a class="nav-link" href="/trick">Tricks
+							<a class="nav-link" href="{{ path('trick_showAll') }}">Tricks
 								<span class="visually-hidden">(current)</span>
 							</a>
 						</li>
 						<li class="nav-item">
-							<a class="nav-link" href="/trick/new">Créer un tricks</a>
+							<a class="nav-link" href="{{ path('trick_new') }}">Créer un tricks</a>
 						</li>
-						<li class="nav-item">
-							<a class="nav-link" href="#">Se connecter</a>
-						</li>
+						{% if not app.user %}
+							<li class="nav-item">
+								<a class="nav-link" href="{{ path('registration_register') }}">Inscription</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" href="{{ path('security_login') }}">Connexion</a>
+							</li>
+						{% else %}
+							<li class="nav-item">
+								<a class="nav-link" href="{{ path('security_logout') }}">Déconnexion</a>
+							</li>
+						{% endif %}
 					</ul>
 				</div>
 			</div>

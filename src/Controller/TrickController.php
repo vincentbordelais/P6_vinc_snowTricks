@@ -19,7 +19,7 @@ class TrickController extends AbstractController
         return $this->render('trick/home.html.twig');
     }
 
-    #[Route('/trick', name: 'app_trick')] // showListOfTricks
+    #[Route('/tricks', name: 'trick_showAll')]
     public function index(TrickRepository $trickRepository): Response
     {
         $tricks = $trickRepository->findAll();
@@ -28,9 +28,9 @@ class TrickController extends AbstractController
         ]);
     }
 
-    #[Route('/trick/new', name: 'trick_new')]
-    #[Route('/trick/{id}/edit', name: 'trick_edit')]
-    public function form(Trick $trick = null, Request $request, EntityManagerInterface $em): Response
+    #[Route('/trick/creer', name: 'trick_new')]
+    #[Route('/trick/{id}/modifier', name: 'trick_edit')]
+    public function newOrEdit(Trick $trick = null, Request $request, EntityManagerInterface $em): Response
     {
         if (!$trick) {
             $trick = new Trick();
