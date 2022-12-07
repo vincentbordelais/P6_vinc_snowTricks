@@ -19,8 +19,13 @@
 				{{ trick.createdDate | date('h:m') }}</div>
 		</article>
 		<div class="content">
-			<a href="{{ path('trick_edit', {'id':trick.id}) }}" class="btn btn-warning">Modifier</a>
-			<a href="#" class="btn btn-danger">Supprimer</a>
+			{% if is_granted("TRICK_EDIT", trick) %}
+				<a href="{{ path('trick_edit', {'id':trick.id}) }}" class="btn btn-warning">Modifier</a>
+			{% endif %}
+
+			{% if is_granted("TRICK_DELETE", trick) %}
+				<a href="{{ path('trick_delete', {'id':trick.id}) }}" class="btn btn-danger">Supprimer</a>
+			{% endif %}
 		</div>
 	</section>
 {% endblock %}

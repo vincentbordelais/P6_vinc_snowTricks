@@ -29,31 +29,29 @@ class TrickController extends AbstractController
     }
 
     #[Route('/trick/creer', name: 'trick_new')]
-    #[Route('/trick/{id}/modifier', name: 'trick_edit')]
-    public function newOrEdit(Trick $trick = null, Request $request, EntityManagerInterface $em): Response
+    public function newTrick(Request $request, EntityManagerInterface $em): Response
     {
-        if (!$trick) {
-            $trick = new Trick();
-        }
+        // make sure the user is authenticated first,
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        $trick = new Trick();
+
         $form = $this->createForm(TrickType::class, $trick);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            if (!$trick->getId()) {
-                $trick->setCreatedDate(new \DateTime());
-                $trick->setUpdatedDate(new \DateTime());
-            }
             $trick = $form->getData();
             $trick->setCreatedDate(new \DateTime());
             $trick->setUpdatedDate(new \DateTime());
+            $trick->setAuthor($this->getUser());
             $em->persist($trick);
+
             $em->flush();
             return $this->redirectToRoute('trick_showOne', ['id' => $trick->getId()]);
         }
 
-        return $this->renderForm('trick/new&edit.html.twig', [
-            'formTrick' => $form,
-            'editMode' => $trick->getId() !== null // si true, on est mode d'édition
+        return $this->renderForm('trick/new.html.twig', [
+            'formTrick' => $form
         ]);
     }
 
