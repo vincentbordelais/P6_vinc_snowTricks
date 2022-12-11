@@ -8,15 +8,20 @@
 		<article>
 			<h2>Titre</h2>
 			<div class="metadata">
-				{{ trick.name }}</div>
+				{{ trick.name }}
+			</div>
 			<div class="content">
-				<p>{{ trick.description }}
-				</p>
+				<p>{{ trick.description }}</p>
 			</div>
 			<div>Créé le
 				{{ trick.createdDate| date('d/m/Y') }}
 				à
-				{{ trick.createdDate | date('h:m') }}</div>
+				{{ trick.createdDate | date('h:m') }}
+			</div>
+			<div>
+				{{ trick.category.name }}
+			</div>
+
 		</article>
 		<div class="content">
 			{% if is_granted("TRICK_EDIT", trick) %}
@@ -27,5 +32,6 @@
 				<a href="{{ path('trick_delete', {'id':trick.id}) }}" class="btn btn-danger">Supprimer</a>
 			{% endif %}
 		</div>
+
 	</section>
 {% endblock %}
