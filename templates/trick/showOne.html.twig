@@ -25,11 +25,11 @@
 		</article>
 		<div class="content">
 			{% if is_granted("TRICK_EDIT", trick) %}
-				<a href="{{ path('trick_edit', {'id':trick.id}) }}" class="btn btn-warning">Modifier</a>
+				<a href="{{ path('trick_edit', {'slug':trick.slug}) }}" class="btn btn-warning">Modifier</a>
 			{% endif %}
 
 			{% if is_granted("TRICK_DELETE", trick) %}
-				<a href="{{ path('trick_delete', {'id':trick.id}) }}" class="btn btn-danger">Supprimer</a>
+				<a href="{{ path('trick_delete', {'slug':trick.slug}) }}" class="btn btn-danger">Supprimer</a>
 			{% endif %}
 		</div>
 

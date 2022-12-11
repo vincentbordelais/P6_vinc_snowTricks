@@ -17,7 +17,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 // #[IsGranted('ROLE_AUTHOR')]
 class AdminController extends AbstractController
 {
-    #[Route('/trick/{id}/modifier', name: 'trick_edit')]
+    #[Route('/trick/{slug}/modifier', name: 'trick_edit')]
     public function edit(Trick $trick, Request $request, EntityManagerInterface $em): Response
     {
         // make sure the user is authenticated first :
@@ -42,7 +42,7 @@ class AdminController extends AbstractController
         ]);
     }
 
-    #[Route('/trick/{id}/supprimer', name: 'trick_delete')]
+    #[Route('/trick/{slug}/supprimer', name: 'trick_delete')]
     public function delete(Trick $trick, EntityManagerInterface $em): Response
     {
         $this->denyAccessUnlessGranted("TRICK_DELETE", $trick);

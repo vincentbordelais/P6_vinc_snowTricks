@@ -15,7 +15,7 @@
 				</div>
 				<div class="content">
 					<p>{{ trick.description | raw }}</p>
-					<a href="{{ path('trick_showOne', {'id':trick.id}) }}" class="btn btn-primary">Lire la suite</a>
+					<a href="{{ path('trick_showOne', {'slug':trick.slug}) }}" class="btn btn-primary">Lire la suite</a>
 				</div>
 			</article>
 		{% endfor %}

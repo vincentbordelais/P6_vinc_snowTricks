@@ -9,10 +9,18 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class TrickController extends AbstractController
 {
+    private $slugger;
+
+    public function __construct(SluggerInterface $slugger)
+    {
+        $this->slugger = $slugger;
+    }
+
     #[Route('/', name: 'trick_home')]
     public function home(): Response
     {
@@ -44,10 +52,11 @@ class TrickController extends AbstractController
             $trick->setCreatedDate(new \DateTime());
             $trick->setUpdatedDate(new \DateTime());
             $trick->setAuthor($this->getUser());
+            $trick->setSlug($this->slugger->slug($trick->getName()));
             $em->persist($trick);
 
             $em->flush();
-            return $this->redirectToRoute('trick_showOne', ['id' => $trick->getId()]);
+            return $this->redirectToRoute('trick_showOne', ['slug' => $trick->getSlug()]);
         }
 
         return $this->renderForm('trick/new.html.twig', [
@@ -55,7 +64,7 @@ class TrickController extends AbstractController
         ]);
     }
 
-    #[Route('/trick/{id}', name: 'trick_showOne')]
+    #[Route('/trick/{slug}', name: 'trick_showOne')]
     public function showOne(Trick $trick): Response
     {
         return $this->render('trick/showOne.html.twig', [
