@@ -54,9 +54,11 @@ class TrickController extends AbstractController
             $trick->setAuthor($this->getUser());
             $trick->setSlug($this->slugger->slug($trick->getName()));
             $em->persist($trick);
-
             $em->flush();
-            return $this->redirectToRoute('trick_showOne', ['slug' => $trick->getSlug()]);
+
+            $this->addFlash('success', "Votre figure a été enregistrée");
+
+            return $this->redirectToRoute('trick_showAll');
         }
 
         return $this->renderForm('trick/new.html.twig', [
