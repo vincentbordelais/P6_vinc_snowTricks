@@ -1,41 +1,77 @@
 {% extends 'base.html.twig' %}
-
+{% form_theme formComment 'bootstrap_5_layout.html.twig' %}
 {% block title %}Un Trick
 {% endblock %}
 
 {% block body %}
 	<section class="trick">
+		<h2 class="metadata">
+			{{ trick.name }}
+		</h2>
+		<div>Créé le
+			{{ trick.createdDate| date('d/m/Y') }}
+			à
+			{{ trick.createdDate | date('h:m') }}
+		</div>
+		<div>
+			{{ trick.category.name }}
+		</div>
 		<article>
-			<h2>Titre</h2>
-			<div class="metadata">
-				{{ trick.name }}
-			</div>
 			<div class="content">
 				<p>{{ trick.description }}</p>
 			</div>
-			<div>Créé le
-				{{ trick.createdDate| date('d/m/Y') }}
-				à
-				{{ trick.createdDate | date('h:m') }}
-			</div>
-			<div>
-				{{ trick.category.name }}
-			</div>
-
 		</article>
+	</section>
+
+	<section class="trick">
 		<div class="content">
 			{% if is_granted("TRICK_EDIT", trick) %}
 				<a href="{{ path('trick_edit', {'slug':trick.slug}) }}" class="btn btn-warning">
 					<i class="fas fa-edit"></i>
 				</a>
 			{% endif %}
-
 			{% if is_granted("TRICK_DELETE", trick) %}
 				<a href="{{ path('trick_delete', {'slug':trick.slug}) }}" class="btn btn-danger">
 					<i class="fas fa-trash-alt"></i>
 				</a>
 			{% endif %}
 		</div>
+	</section>
 
+	{# <section class="content">
+				{% if is_granted('ROLE_USER') %}
+					{{ form_row(formComment.comment, {'attr' : {'placeholder' : "Salut, ..." }}) }}
+					<button type="submit" class="btn btn-success">Enregistrer</button>
+					{% if is_granted('ROLE_ADMIN') %}
+						{{ form_row(formComment.validation) }}
+					{% endif %}
+				{% endif %}
+			</section> #}
+
+	<section class="content">
+		{{ form_start(formComment, {'attr': {'novalidate': 'novalidate'}}) }}
+		<button type="submit" class="btn btn-success">Enregistrer</button>
+		{{ form_end(formComment) }}
+	</section>
+
+	<section>
+		{% for comment in comments %}
+			<div class="metadata">Ecrit le
+				{{ comment.createdDate | date('d/m/Y') }}
+				à
+				{{ comment.createdDate | date('h:m') }}
+				par
+				{{ comment.user.username }}
+			</div>
+			<div class="content">
+				<p>{{ comment.comment | raw }}</p>
+			</div>
+
+			{% if is_granted('ROLE_ADMIN') %}
+				<a href="{{ path('comment_delete', {'id':comment.id}) }}" class="btn btn-danger">
+					<i class="fas fa-trash-alt"></i>
+				</a>
+			{% endif %}
+		{% endfor %}
 	</section>
 {% endblock %}

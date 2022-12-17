@@ -3,8 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\Trick;
+use App\Entity\Comment;
 use App\Form\TrickType;
+use App\Form\CommentType;
 use App\Repository\TrickRepository;
+use App\Repository\CommentRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -67,10 +70,36 @@ class TrickController extends AbstractController
     }
 
     #[Route('/trick/{slug}', name: 'trick_showOne')]
-    public function showOne(Trick $trick): Response
+    public function showOne(Trick $trick, CommentRepository $commentRepository, Request $request, EntityManagerInterface $em): Response
     {
-        return $this->render('trick/showOne.html.twig', [
+
+        // make sure the user is authenticated first,
+        // $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        $comments = $commentRepository->findBy(['trick' => $trick->getId()]);
+
+        $comment = new Comment();
+        $form = $this->createForm(CommentType::class, $comment);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $comment = $form->getData();
+            $comment->setCreatedDate(new \DateTime());
+            $comment->setTrick($trick);
+            $comment->setUser($this->getUser());
+            $em->persist($comment);
+            $em->flush();
+
+            $this->addFlash('success', "Votre commentaire a été enregistré");
+
+            // return $this->redirectToRoute('trick_showAll');
+            return $this->redirectToRoute('trick_showOne', array('slug' => $trick->getSlug()));
+        }
+
+        return $this->renderForm('trick/showOne.html.twig', [
             'trick' => $trick,
+            'comments' => $comments,
+            'formComment' => $form
         ]);
     }
 }

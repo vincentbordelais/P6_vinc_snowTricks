@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Trick;
+use App\Entity\Comment;
 use App\Form\TrickType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -52,5 +53,19 @@ class AdminController extends AbstractController
         $em->flush();
 
         return $this->redirectToRoute('trick_showAll');
+    }
+
+    #[Route('/comment/{id}/supprimer', name: 'comment_delete')]
+    public function deleteComment(Comment $comment, EntityManagerInterface $em): Response
+    {
+        // $this->denyAccessUnlessGranted("COMMENT_DELETE", $comment);
+
+        $comment->getComment();
+        $em->remove($comment);
+        $em->flush();
+
+        return $this->redirectToRoute('trick_showAll');
+        // Comment récupérer la page en cours?
+        // return $this->redirectToRoute('trick_showOne', array('slug' => $trick->getSlug()));
     }
 }
