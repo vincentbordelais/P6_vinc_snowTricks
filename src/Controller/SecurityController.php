@@ -20,7 +20,6 @@ class SecurityController extends AbstractController
         $lastUsername = $authenticationUtils->getLastUsername();
 
         return $this->render('security/connexion.html.twig', [
-            // 'controller_name' => 'SecurityController',
             'last_username' => $lastUsername,
             'error' => $error,
         ]);
@@ -35,6 +34,6 @@ class SecurityController extends AbstractController
     #[Route('/deconnexion', name: 'security_logout')]
     public function logout(): void
     {
-        throw new \Exception('This should never be reached!');
+        throw new \Exception('Vous êtes déconnecté');
     }
 }

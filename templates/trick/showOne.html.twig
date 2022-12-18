@@ -38,20 +38,13 @@
 		</div>
 	</section>
 
-	{# <section class="content">
-				{% if is_granted('ROLE_USER') %}
-					{{ form_row(formComment.comment, {'attr' : {'placeholder' : "Salut, ..." }}) }}
-					<button type="submit" class="btn btn-success">Enregistrer</button>
-					{% if is_granted('ROLE_ADMIN') %}
-						{{ form_row(formComment.validation) }}
-					{% endif %}
-				{% endif %}
-			</section> #}
-
 	<section class="content">
-		{{ form_start(formComment, {'attr': {'novalidate': 'novalidate'}}) }}
-		<button type="submit" class="btn btn-success">Enregistrer</button>
-		{{ form_end(formComment) }}
+		{% if is_granted('ROLE_USER') %}
+			{{ form_start(formComment, {'attr': {'novalidate': 'novalidate'}}) }}
+			{{ form_row(formComment.comment, {'attr' : {'placeholder' : "Salut, ..." }}) }}
+			<button type="submit" class="btn btn-success">Enregistrer</button>
+			{{ form_end(formComment) }}
+		{% endif %}
 	</section>
 
 	<section>

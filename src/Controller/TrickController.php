@@ -31,10 +31,10 @@ class TrickController extends AbstractController
     }
 
     #[Route('/tricks', name: 'trick_showAll')]
-    public function index(TrickRepository $trickRepository): Response
+    public function showAll(TrickRepository $trickRepository): Response
     {
         $tricks = $trickRepository->findAll();
-        return $this->render('trick/index.html.twig', [
+        return $this->render('trick/showAll.html.twig', [
             'tricks' => $tricks,
         ]);
     }
@@ -74,9 +74,9 @@ class TrickController extends AbstractController
     {
 
         // make sure the user is authenticated first,
-        // $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
-        $comments = $commentRepository->findBy(['trick' => $trick->getId()]);
+        $comments = $commentRepository->findBy(['trick' => $trick->getId()], ['created_date' => 'DESC']);
 
         $comment = new Comment();
         $form = $this->createForm(CommentType::class, $comment);

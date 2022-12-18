@@ -6,12 +6,6 @@ use App\Repository\CommentRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-// enum Validation: string
-// {
-//     case Yes = 'yes';
-//     case No = 'no';
-// }
-
 #[ORM\Entity(repositoryClass: CommentRepository::class)]
 class Comment
 {
@@ -33,9 +27,6 @@ class Comment
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $created_date = null;
-
-    #[ORM\Column(type: Types::BOOLEAN)]
-    private $validation;
 
     public function getId(): ?int
     {
@@ -86,18 +77,6 @@ class Comment
     public function setCreatedDate(\DateTimeInterface $created_date): self
     {
         $this->created_date = $created_date;
-
-        return $this;
-    }
-
-    public function getValidation(): ?string
-    {
-        return $this->validation;
-    }
-
-    public function setValidation(string $validation): self
-    {
-        $this->validation = $validation;
 
         return $this;
     }

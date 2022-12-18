@@ -9,7 +9,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 /**
@@ -19,7 +18,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 class AdminController extends AbstractController
 {
     #[Route('/trick/{slug}/modifier', name: 'trick_edit')]
-    public function edit(Trick $trick, Request $request, EntityManagerInterface $em): Response
+    public function editTrick(Trick $trick, Request $request, EntityManagerInterface $em): Response
     {
         // make sure the user is authenticated first :
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
@@ -44,7 +43,7 @@ class AdminController extends AbstractController
     }
 
     #[Route('/trick/{slug}/supprimer', name: 'trick_delete')]
-    public function delete(Trick $trick, EntityManagerInterface $em): Response
+    public function deleteTrick(Trick $trick, EntityManagerInterface $em): Response
     {
         $this->denyAccessUnlessGranted("TRICK_DELETE", $trick);
 
@@ -58,14 +57,12 @@ class AdminController extends AbstractController
     #[Route('/comment/{id}/supprimer', name: 'comment_delete')]
     public function deleteComment(Comment $comment, EntityManagerInterface $em): Response
     {
-        // $this->denyAccessUnlessGranted("COMMENT_DELETE", $comment);
+        $this->denyAccessUnlessGranted("ROLE_ADMIN");
 
         $comment->getComment();
         $em->remove($comment);
         $em->flush();
 
-        return $this->redirectToRoute('trick_showAll');
-        // Comment récupérer la page en cours?
-        // return $this->redirectToRoute('trick_showOne', array('slug' => $trick->getSlug()));
+        return $this->redirectToRoute('trick_showOne', ['slug' => $comment->getTrick()->getSlug()]);
     }
 }
