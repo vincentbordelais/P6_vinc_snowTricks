@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+{% form_theme formCategory 'bootstrap_5_layout.html.twig' %}
+{% block title %}Création d'une catégorie
+{% endblock %}
+
+{% block body %}
+	<h2>Creation d'une catégorie</h2>
+	<section class="category">
+		{{ form_start(formCategory, {'attr': {'novalidate': 'novalidate'}}) }}
+		{{ form_row(formCategory.name, {'attr' : {'placeholder' : "Nom" }}) }}
+		{{ form_row(formCategory.description, {'attr' : {'placeholder' : "Description" }}) }}
+		<button type="submit" class="btn btn-success">Créer la catégorie</button>
+		{{ form_end(formCategory) }}
+	</section>
+{% endblock %}

@@ -14,7 +14,11 @@
 			{{ trick.createdDate | date('h:m') }}
 		</div>
 		<div>
-			{{ trick.category.name }}
+			{% if trick.categories %}
+				{% for category in trick.categories %}
+					{{ category.name }}
+				{% endfor %}
+			{% endif %}
 		</div>
 		<article>
 			<div class="content">

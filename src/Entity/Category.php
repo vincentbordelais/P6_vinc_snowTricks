@@ -2,10 +2,12 @@
 
 namespace App\Entity;
 
-use App\Repository\CategoryRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\CategoryRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
 class Category
@@ -21,19 +23,17 @@ class Category
     #[ORM\Column(length: 255)]
     private ?string $slug = null;
 
-    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'categories')]
-    private ?self $parent = null;
+    #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: 'La description ne doit pas être vide')]
+    #[Assert\Length(min: 9, minMessage: 'Minimum {{ limit }} caractères')]
+    private ?string $description = null;
 
-    #[ORM\OneToMany(mappedBy: 'parent', targetEntity: self::class)]
-    private Collection $categories;
-
-    #[ORM\OneToMany(mappedBy: 'category', targetEntity: Trick::class)]
-    private Collection $tricks;
+    #[ORM\ManyToMany(targetEntity: Trick::class, inversedBy: 'categories')]
+    private Collection $trick;
 
     public function __construct()
     {
-        $this->categories = new ArrayCollection();
-        $this->tricks = new ArrayCollection();
+        $this->trick = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -65,44 +65,14 @@ class Category
         return $this;
     }
 
-    public function getParent(): ?self
+    public function getDescription(): ?string
     {
-        return $this->parent;
+        return $this->description;
     }
 
-    public function setParent(?self $parent): self
+    public function setDescription(string $description): self
     {
-        $this->parent = $parent;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, self>
-     */
-    public function getCategories(): Collection
-    {
-        return $this->categories;
-    }
-
-    public function addCategory(self $category): self
-    {
-        if (!$this->categories->contains($category)) {
-            $this->categories->add($category);
-            $category->setParent($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCategory(self $category): self
-    {
-        if ($this->categories->removeElement($category)) {
-            // set the owning side to null (unless already changed)
-            if ($category->getParent() === $this) {
-                $category->setParent(null);
-            }
-        }
+        $this->description = $description;
 
         return $this;
     }
@@ -110,16 +80,15 @@ class Category
     /**
      * @return Collection<int, Trick>
      */
-    public function getTricks(): Collection
+    public function getTrick(): Collection
     {
-        return $this->tricks;
+        return $this->trick;
     }
 
     public function addTrick(Trick $trick): self
     {
-        if (!$this->tricks->contains($trick)) {
-            $this->tricks->add($trick);
-            $trick->setCategory($this);
+        if (!$this->trick->contains($trick)) {
+            $this->trick->add($trick);
         }
 
         return $this;
@@ -127,12 +96,7 @@ class Category
 
     public function removeTrick(Trick $trick): self
     {
-        if ($this->tricks->removeElement($trick)) {
-            // set the owning side to null (unless already changed)
-            if ($trick->getCategory() === $this) {
-                $trick->setCategory(null);
-            }
-        }
+        $this->trick->removeElement($trick);
 
         return $this;
     }

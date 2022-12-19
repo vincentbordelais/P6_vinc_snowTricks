@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Une catégorie
+{% endblock %}
+
+{% block body %}
+	<section class="trick">
+		<h2 class="metadata">
+			{{ category.name }}
+		</h2>
+		<div class="content">
+			<p>{{ category.description }}</p>
+		</div>
+	</section>
+
+	<a href="{{ path('category_edit', {'slug':category.slug}) }}" class="btn btn-warning">
+		<i class="fas fa-edit"></i>
+	</a>
+	<a href="{{ path('category_delete', {'slug':category.slug}) }}" class="btn btn-danger">
+		<i class="fas fa-trash-alt"></i>
+	</a>
+
+{% endblock %}

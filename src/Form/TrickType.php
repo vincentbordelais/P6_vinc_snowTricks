@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\Trick;
 use App\Entity\Category;
+use Doctrine\ORM\EntityRepository;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -23,12 +24,18 @@ class TrickType extends AbstractType
                 'empty_data' => ''
             ])
             ->add(
-                'category',
+                'categories',
                 EntityType::class,
                 [
                     'class' => Category::class,
-                    'label' => 'Catégorie',
+                    'label' => 'Catégories',
                     'choice_label' => 'name',
+                    'expanded' => true,
+                    'multiple' => true,
+                    'query_builder' => function (EntityRepository $er) {
+                        return $er->createQueryBuilder('c')->orderBy('c.name', 'ASC');
+                    },
+                    'by_reference' => false
                 ]
             );
     }

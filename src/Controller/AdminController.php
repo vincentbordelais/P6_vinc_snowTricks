@@ -31,6 +31,7 @@ class AdminController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $trick = $form->getData();
             $trick->setUpdatedDate(new \DateTime());
+            // $trick->setCategory() Il n'y a pas de setCategory
             $em->persist($trick);
             $em->flush();
             return $this->redirectToRoute('trick_showAll');

@@ -4,7 +4,7 @@
 {% endblock %}
 
 {% block body %}
-	<h1>Creation d'un Trick</h1>
+	<h2>Creation d'un Trick</h2>
 
 	{{ form_start(formTrick, {'attr': {'novalidate': 'novalidate'}}) }}
 
@@ -12,7 +12,7 @@
 
 	{{ form_row(formTrick.description, {'attr' : {'placeholder' : "Description" }}) }}
 
-	{{ form_row(formTrick.category, {'attr' : {'placeholder' : "Catégorie" }}) }}
+	{{ form_row(formTrick.categories) }}
 
 	<button type="submit" class="btn btn-success">Créer le Trick</button>
 
