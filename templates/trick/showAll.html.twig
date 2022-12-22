@@ -5,7 +5,7 @@
 
 {% block body %}
 	<section class="trick">
-		{% for trick in tricks %}
+		{% for trick in tricks.data %}
 			<article>
 				<h2>{{ trick.name }}</h2>
 				<div class="metadata">Ecrit le
@@ -19,5 +19,11 @@
 				</div>
 			</article>
 		{% endfor %}
-	</section>
-{% endblock %}
+
+		{% set path = 'trick_showAll' %}
+		{% set pages = tricks.totalOfPages %}
+		{% set currentPage = page %}
+		<div class=""></br>
+		{% include "_partials/_pagination.html.twig" %}
+	</div>
+</section>{% endblock %}

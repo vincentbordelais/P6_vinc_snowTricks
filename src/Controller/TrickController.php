@@ -31,11 +31,18 @@ class TrickController extends AbstractController
     }
 
     #[Route('/tricks', name: 'trick_showAll')]
-    public function showAll(TrickRepository $trickRepository): Response
+    public function showAll(TrickRepository $trickRepository, Request $request): Response
     {
-        $tricks = $trickRepository->findAll();
+        // On va chercher le numéro de page dans l'url :
+        $page = $request->query->getInt('page', 1); // $request->query : va chercher dans l'url, s'il ne trouve pas 'page on considère que c'est pa gae 1. Genre: https://127.0.0.1:8000/tricks?page=2
+
+        // On va chercher la liste des tricks :
+        // $tricks = $trickRepository->findAll();
+        $tricks = $trickRepository->findTricksPaginated($page, 2); // numéro de la page, limite
+
         return $this->render('trick/showAll.html.twig', [
             'tricks' => $tricks,
+            'page' => $page,
         ]);
     }
 
@@ -73,8 +80,8 @@ class TrickController extends AbstractController
     public function showOne(Trick $trick, CommentRepository $commentRepository, Request $request, EntityManagerInterface $em): Response
     {
 
-        // make sure the user is authenticated first,
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+        // make sure the user is authenticated first, Non tous les visiteurs ont accès.
+        // $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
         $comments = $commentRepository->findBy(['trick' => $trick->getId()], ['created_date' => 'DESC']);
 
@@ -92,7 +99,6 @@ class TrickController extends AbstractController
 
             $this->addFlash('success', "Votre commentaire a été enregistré");
 
-            // return $this->redirectToRoute('trick_showAll');
             return $this->redirectToRoute('trick_showOne', array('slug' => $trick->getSlug()));
         }
 

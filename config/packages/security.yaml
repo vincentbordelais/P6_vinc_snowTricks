@@ -28,6 +28,7 @@ security:
                 login_path: security_login
                 check_path: security_login
                 enable_csrf: true
+                default_target_path: trick_showAll
             logout:
                 path: security_logout
                 target: trick_showAll
