@@ -16,7 +16,7 @@
 		<div>
 			{% if trick.categories %}
 				{% for category in trick.categories %}
-					{{ category.name }}
+					<a href="{{ path('trick_showByCategory', {'categorySlug': category.slug}) }}">{{ category.name }}</a>
 				{% endfor %}
 			{% endif %}
 		</div>

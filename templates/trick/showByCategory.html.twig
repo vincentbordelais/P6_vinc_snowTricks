@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste de Tricks
+{% endblock %}
+
+{% block body %}
+	<section class="trick">
+		{% for trick in tricks %}
+			<article>
+				<h2>{{ trick.name }}</h2>
+				<div class="metadata">Ecrit le
+					{{ trick.createdDate | date('d/m/Y') }}
+					à
+					{{ trick.createdDate | date('h:m') }}
+				</div>
+				<div class="content">
+					<p>{{ trick.description | raw }}</p>
+					<a href="{{ path('trick_showOne', {'slug':trick.slug}) }}" class="btn btn-primary">Lire la suite</a>
+				</div>
+			</article>
+		{% endfor %}
+	</section>
+{% endblock %}

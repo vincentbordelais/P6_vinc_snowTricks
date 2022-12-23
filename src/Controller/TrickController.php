@@ -6,6 +6,7 @@ use App\Entity\Trick;
 use App\Entity\Comment;
 use App\Form\TrickType;
 use App\Form\CommentType;
+use App\Repository\CategoryRepository;
 use App\Repository\TrickRepository;
 use App\Repository\CommentRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -106,6 +107,17 @@ class TrickController extends AbstractController
             'trick' => $trick,
             'comments' => $comments,
             'formComment' => $form
+        ]);
+    }
+
+    #[Route('/tricks/catégorie/{categorySlug}', name: 'trick_showByCategory')]
+    public function showByCategory($categorySlug, CategoryRepository $categoryRepository): Response
+    {
+        $category = $categoryRepository->findOneBy(['slug' => $categorySlug]);
+        $tricks = $category->getTrick();
+
+        return $this->render('trick/showByCategory.html.twig', [
+            'tricks' => $tricks,
         ]);
     }
 }
