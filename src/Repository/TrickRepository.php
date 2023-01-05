@@ -40,60 +40,68 @@ class TrickRepository extends ServiceEntityRepository
         }
     }
 
-    //    /**
-    //     * @return Trick[] Returns an array of Trick objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('t')
-    //            ->andWhere('t.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('t.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?Trick
-    //    {
-    //        return $this->createQueryBuilder('t')
-    //            ->andWhere('t.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
-
     /**
      * @return Trick[] Returns an array of Trick objects paginated
      */
-    public function findTricksPaginated(int $NumberOfThePage, int $limit = 10): array
+    public function findTricksPaginated(int $currentPage, int $limit = 10): array
     {
         $result = [];
 
-        $query = $this->getEntityManager()->createQueryBuilder()
+        $tricks = $this->getEntityManager()->createQueryBuilder()
             ->select('t')
             ->from('App\Entity\Trick', 't')
             ->setMaxResults($limit)
-            ->setFirstResult(($NumberOfThePage * $limit) - $limit);
-        // $result = $query->getQuery()->getResult();
+            ->setFirstResult(($currentPage * $limit) - $limit);
 
-        $paginator = new Paginator($query);
-        $data = $paginator->getQuery()->getResult();
-        // dd($data);
+        $paginator = new Paginator($tricks);
+        $tricksPerPage = $paginator->getQuery()->getResult();
 
         // On vérifie qu'on a des données :
-        if (empty($data)) {
+        if (empty($tricksPerPage)) {
             return $result;
         }
 
         // On calcule le nombre de pages :
         $totalOfPages = ceil($paginator->count() / $limit); // ceil = arrondi supérieur, $paginator->count() = nbre de tricks
 
-        // On rempli notre tableau $result :
-        $result['data']  = $data;
-        $result['NumberOfThePage'] = $NumberOfThePage;
+        // On remplie notre tableau $result :
+        $result['tricksPerPage']  = $tricksPerPage;
+        $result['totalOfPages'] = $totalOfPages;
+        $result['limit'] = $limit;
+
+        return $result;
+    }
+
+    /**
+     * @return Trick[] Returns an array of Trick objects by category paginated
+     */
+    public function findTricksByCategoryPaginated($categorySlug, int $currentPage, int $limit = 10): array
+    {
+        $result = [];
+
+        $tricks = $this->getEntityManager()->createQueryBuilder()
+            ->select('t, c')
+            ->from('App\Entity\Trick', 't')
+            ->join('t.categories', 'c')
+            ->where('c.slug = :categorySlug')
+            ->setParameter('categorySlug', $categorySlug)
+            ->setMaxResults($limit)
+            ->setFirstResult(($currentPage * $limit) - $limit);
+
+        // dump($tricks);
+        $paginator = new Paginator($tricks);
+        $tricksPerPage = $paginator->getQuery()->getResult();
+
+        // On vérifie qu'on a des données :
+        if (empty($tricksPerPage || $categorySlug == null)) {
+            return $result;
+        }
+
+        // On calcule le nombre de pages :
+        $totalOfPages = ceil($paginator->count() / $limit); // ceil = arrondi supérieur, $paginator->count() = nbre de tricks
+
+        // On remplie notre tableau $result :
+        $result['tricksPerPage']  = $tricksPerPage;
         $result['totalOfPages'] = $totalOfPages;
         $result['limit'] = $limit;
 

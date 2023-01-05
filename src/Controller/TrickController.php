@@ -6,7 +6,6 @@ use App\Entity\Trick;
 use App\Entity\Comment;
 use App\Form\TrickType;
 use App\Form\CommentType;
-use App\Repository\CategoryRepository;
 use App\Repository\TrickRepository;
 use App\Repository\CommentRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -35,15 +34,14 @@ class TrickController extends AbstractController
     public function showAll(TrickRepository $trickRepository, Request $request): Response
     {
         // On va chercher le numéro de page dans l'url :
-        $page = $request->query->getInt('page', 1); // $request->query : va chercher dans l'url, s'il ne trouve pas 'page on considère que c'est pa gae 1. Genre: https://127.0.0.1:8000/tricks?page=2
+        $currentPage = $request->query->getInt('page', 1);
 
-        // On va chercher la liste des tricks :
-        // $tricks = $trickRepository->findAll();
-        $tricks = $trickRepository->findTricksPaginated($page, 2); // numéro de la page, limite
+        // On va chercher le tableau (liste des tricks + total de pages + limit) :
+        $tricksPagination = $trickRepository->findTricksPaginated($currentPage, 2); // limit = 2
 
         return $this->render('trick/showAll.html.twig', [
-            'tricks' => $tricks,
-            'page' => $page,
+            'tricksPagination' => $tricksPagination,
+            'currentPage' => $currentPage,
         ]);
     }
 
@@ -77,12 +75,14 @@ class TrickController extends AbstractController
         ]);
     }
 
-    #[Route('/trick/{slug}', name: 'trick_showOne')]
-    public function showOne(Trick $trick, CommentRepository $commentRepository, Request $request, EntityManagerInterface $em): Response
+    #[Route('/trick/{trickSlug}', name: 'trick_showOne')]
+    public function showOne(TrickRepository $trickRepository, CommentRepository $commentRepository, Request $request, EntityManagerInterface $em, $trickSlug): Response
     {
-
         // make sure the user is authenticated first, Non tous les visiteurs ont accès.
         // $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        // Récupération du trick associé au slug :
+        $trick = $trickRepository->findOneBy(['slug' => $trickSlug]);
 
         $comments = $commentRepository->findBy(['trick' => $trick->getId()], ['created_date' => 'DESC']);
 
@@ -98,9 +98,7 @@ class TrickController extends AbstractController
             $em->persist($comment);
             $em->flush();
 
-            $this->addFlash('success', "Votre commentaire a été enregistré");
-
-            return $this->redirectToRoute('trick_showOne', array('slug' => $trick->getSlug()));
+            return $this->redirectToRoute('trick_showOne', array('trickSlug' => $trick->getSlug()));
         }
 
         return $this->renderForm('trick/showOne.html.twig', [
@@ -111,13 +109,18 @@ class TrickController extends AbstractController
     }
 
     #[Route('/tricks/catégorie/{categorySlug}', name: 'trick_showByCategory')]
-    public function showByCategory($categorySlug, CategoryRepository $categoryRepository): Response
+    public function showByCategory(TrickRepository $trickRepository, Request $request, $categorySlug): Response
     {
-        $category = $categoryRepository->findOneBy(['slug' => $categorySlug]);
-        $tricks = $category->getTrick();
+        // On va chercher le numéro de page dans l'url :
+        $currentPage = $request->query->getInt('page', 1);
+
+        // On va chercher le tableau (liste des tricks par catégorie + total de pages +limit) :
+        $tricksPagination = $trickRepository->findTricksByCategoryPaginated($categorySlug, $currentPage, 2); // limit = 2
 
         return $this->render('trick/showByCategory.html.twig', [
-            'tricks' => $tricks,
+            'tricksPagination' => $tricksPagination,
+            'currentPage' => $currentPage,
+            'categorySlug' => $categorySlug,
         ]);
     }
 }

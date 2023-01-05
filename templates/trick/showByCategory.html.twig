@@ -4,20 +4,35 @@
 {% endblock %}
 
 {% block body %}
-	<section class="trick">
-		{% for trick in tricks %}
-			<article>
-				<h2>{{ trick.name }}</h2>
-				<div class="metadata">Ecrit le
-					{{ trick.createdDate | date('d/m/Y') }}
-					à
-					{{ trick.createdDate | date('h:m') }}
+	<p>Liste de Tricks</p>
+	<div class="row">
+		{% for trick in tricksPagination.tricksPerPage %}
+			<div class="col-3 mb-3">
+				<div class="border border-dark rounded p-2">
+					<h2>{{ trick.name }}</h2>
+					<div class="content">Ecrit le
+						{{ trick.createdDate | date('d/m/Y') }}
+						à
+						{{ trick.createdDate | date('h:m') }}
+						par
+						{{ trick.author.username }}
+					</div>
+					<div class="content">
+						<p>{{ trick.description | raw }}</p>
+						<a href="{{ path('trick_showOne', {'trickSlug':trick.slug}) }}" class="btn btn-primary">Lire la suite</a>
+					</div>
 				</div>
-				<div class="content">
-					<p>{{ trick.description | raw }}</p>
-					<a href="{{ path('trick_showOne', {'slug':trick.slug}) }}" class="btn btn-primary">Lire la suite</a>
-				</div>
-			</article>
+			</div>
+
 		{% endfor %}
-	</section>
-{% endblock %}
+	</br>
+
+	{% set path = 'trick_showByCategory' %}
+	{% set param1 = {'categorySlug':categorySlug, 'page':currentPage-1} %}
+	{% set param2 = {'categorySlug':categorySlug, 'page':currentPage} %}
+	{% set param3 = {'categorySlug':categorySlug, 'page':currentPage+1} %}
+	{% set totalOfPages = tricksPagination.totalOfPages %}
+	{% set currentPage = currentPage %}
+	{% include "_partials/_pagination.html.twig" %}
+
+</div>{% endblock %}
