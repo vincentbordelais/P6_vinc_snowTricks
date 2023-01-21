@@ -2,14 +2,15 @@
 
 namespace App\Entity;
 
-use App\Repository\UserRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\UserRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[UniqueEntity(fields: ['email'], message: 'Un compte existe déjà avec cette adresse e-mail')]
@@ -18,13 +19,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups("comment:read")]
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
     #[Assert\NotBlank(message: 'L\'email ne doit pas être vide')]
+    #[Groups("comment:read")]
     private ?string $email = null;
 
     #[ORM\Column]
+    #[Groups("comment:read")]
     private array $roles = [];
 
     /**
@@ -33,27 +37,33 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     #[Assert\NotBlank(message: 'Le mot de passe ne doit pas être vide')]
     #[Assert\Length(min: 3, minMessage: 'Minimum {{ limit }} caractères')]
+    #[Groups("comment:read")]
     private ?string $password = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'Le pseudonyme ne doit pas être vide')]
     #[Assert\Length(min: 3, minMessage: 'Minimum {{ limit }} caractères')]
+    #[Groups("comment:read")]
     private ?string $username = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'Le nom ne doit pas être vide')]
     #[Assert\Length(min: 3, minMessage: 'Minimum {{ limit }} caractères')]
+    #[Groups("comment:read")]
     private ?string $first_name = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'Le prénom ne doit pas être vide')]
     #[Assert\Length(min: 3, minMessage: 'Minimum {{ limit }} caractères')]
+    #[Groups("comment:read")]
     private ?string $last_name = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups("comment:read")]
     private ?string $picture = null;
 
     #[ORM\OneToMany(mappedBy: 'author', targetEntity: Trick::class)]
+    #[Groups("comment:read")]
     private Collection $tricks;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Comment::class)]

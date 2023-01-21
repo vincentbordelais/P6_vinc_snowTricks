@@ -1,6 +1,7 @@
 {% extends 'base.html.twig' %}
 {% form_theme formComment 'bootstrap_5_layout.html.twig' %}
-{% block title %}Un Trick
+{% block title %}
+	Un Trick
 {% endblock %}
 
 {% block body %}
@@ -8,7 +9,8 @@
 		<h2 class="metadata">
 			{{ trick.name }}
 		</h2>
-		<div>Créé le
+		<div>
+			Créé le
 			{{ trick.createdDate| date('d/m/Y') }}
 			à
 			{{ trick.createdDate | date('h:m') }}
@@ -16,13 +18,17 @@
 		<div>
 			{% if trick.categories %}
 				{% for category in trick.categories %}
-					<a href="{{ path('trick_showByCategory', {'categorySlug': category.slug}) }}">{{ category.name }}</a>
+					<a href="{{ path('trick_showByCategory', {'categorySlug': category.slug}) }}">
+						{{ category.name }}
+					</a>
 				{% endfor %}
 			{% endif %}
 		</div>
 		<article>
 			<div class="content">
-				<p>{{ trick.description }}</p>
+				<p>
+					{{ trick.description }}
+				</p>
 			</div>
 		</article>
 	</section>
@@ -44,31 +50,63 @@
 
 	<section class="content">
 		{% if is_granted('ROLE_USER') %}
-			{{ form_start(formComment, {'attr': {'novalidate': 'novalidate'}}) }}
-			{{ form_row(formComment.comment, {'attr' : {'placeholder' : "Salut, ..." }}) }}
-			<button type="submit" class="btn btn-success">Enregistrer</button>
+			{{ form_start(formComment, {'attr': {'novalidate': 'novalidate'}}
+			) }}
+			{{ form_row(formComment.comment, {'attr' : {'placeholder' : "Salut, ..." }}
+			) }}
+			<button type="submit" class="btn btn-success">
+				Enregistrer
+			</button>
 			{{ form_end(formComment) }}
 		{% endif %}
 	</section>
 
 	<section>
-		{% for comment in comments %}
-			<div class="metadata">Ecrit le
-				{{ comment.createdDate | date('d/m/Y') }}
-				à
-				{{ comment.createdDate | date('h:m') }}
-				par
-				{{ comment.user.username }}
-			</div>
-			<div class="content">
-				<p>{{ comment.comment | raw }}</p>
-			</div>
-
-			{% if is_granted('ROLE_ADMIN') %}
-				<a href="{{ path('comment_delete', {'id':comment.id}) }}" class="btn btn-danger">
-					<i class="fas fa-trash-alt"></i>
-				</a>
-			{% endif %}
-		{% endfor %}
+		<div id="js-comments"></div>
 	</section>
+{% endblock %}
+
+{% block javascripts %}
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script>
+		$(document).ready(function () {
+			var page = 1;
+			var morePages = true;
+			var lastCalled = Date.now();
+			loadComments(page);
+
+			$(window).scroll(function () {
+				if (($(window).scrollTop() + $(window).height() >= $(document).height() - 100) && morePages) {
+					// Ajout d'un delai pour éviter les appels multiples à la fonction loadComments avec une seule action de scroll
+					var now = Date.now();
+					if (now - lastCalled > 150) {
+						lastCalled = now;
+						page++;
+						loadComments(page);
+					}
+				}
+			});
+		});
+		
+		function loadComments(page) {
+			$.ajax({
+				type: 'GET',
+				url: '/trick/' + '{{ trickSlug }}' + '/commentaires?page=' + page,
+				dataType: 'json',
+				success: function (data) {
+					for (var i = 0; i < data.limit; i++) {
+						var date = new Date(data.commentsData[i].created_date);
+						var dateFormatted = date.toLocaleDateString() + ' à ' + date.toLocaleTimeString("fr-FR", {hour: '2-digit', minute:'2-digit'});
+						$("#js-comments").append("<p>Ecrit le " + dateFormatted + " par " + data.commentsData[i].user.username + "</p>" + "<p>" + data.commentsData[i].comment + "</p>");
+					}
+					if (page >= data.totalNumberOfPages) {
+						morePages = false;
+					}
+				},
+				error: function(xhr, status, error) {
+					console.error('Erreur lors du chargement des commentaires : ' + error);
+				}
+			});
+		};
+	</script>
 {% endblock %}

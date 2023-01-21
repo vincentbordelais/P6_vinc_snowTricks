@@ -78,13 +78,8 @@ class TrickController extends AbstractController
     #[Route('/trick/{trickSlug}', name: 'trick_showOne')]
     public function showOne(TrickRepository $trickRepository, CommentRepository $commentRepository, Request $request, EntityManagerInterface $em, $trickSlug): Response
     {
-        // make sure the user is authenticated first, Non tous les visiteurs ont accès.
-        // $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-
         // Récupération du trick associé au slug :
         $trick = $trickRepository->findOneBy(['slug' => $trickSlug]);
-
-        $comments = $commentRepository->findBy(['trick' => $trick->getId()], ['created_date' => 'DESC']);
 
         $comment = new Comment();
         $form = $this->createForm(CommentType::class, $comment);
@@ -103,9 +98,23 @@ class TrickController extends AbstractController
 
         return $this->renderForm('trick/showOne.html.twig', [
             'trick' => $trick,
-            'comments' => $comments,
-            'formComment' => $form
+            'trickSlug' => $trickSlug,
+            'formComment' => $form,
         ]);
+    }
+
+    #[Route('/trick/{trickSlug}/commentaires', name: 'trick_getComments', methods:["GET"])]
+    // /trick/TestNom1/commentaires?page=3
+    public function getComments(CommentRepository $commentRepository, Request $request)
+    {
+        // On va chercher le numéro de page dans l'url :
+        $currentPage = $request->query->getInt('page', 1);
+
+        // On va chercher le tableau (liste des commentaires + total de pages + limit) :
+        $commentsPagination = $commentRepository->findCommentsPaginated($currentPage, 10); // limit est imposé à 10 par OC
+        // dd($commentsPagination);
+
+        return $this->json($commentsPagination, 200, [], ['groups' => 'comment:read']); // $this->json() utilise SerializerInterface
     }
 
     #[Route('/tricks/catégorie/{categorySlug}', name: 'trick_showByCategory')]

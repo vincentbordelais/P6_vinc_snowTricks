@@ -2,9 +2,10 @@
 
 namespace App\Entity;
 
-use App\Repository\CommentRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\CommentRepository;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: CommentRepository::class)]
 class Comment
@@ -12,20 +13,25 @@ class Comment
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups("comment:read")]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'comments')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups("comment:read")]
     private ?Trick $trick = null;
 
     #[ORM\ManyToOne(inversedBy: 'comments')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups("comment:read")]
     private ?User $user = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Groups("comment:read")]
     private ?string $comment = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Groups("comment:read")]
     private ?\DateTimeInterface $created_date = null;
 
     public function getId(): ?int

@@ -35,7 +35,7 @@ class TrickType extends AbstractType
                     'query_builder' => function (EntityRepository $er) {
                         return $er->createQueryBuilder('c')->orderBy('c.name', 'ASC');
                     },
-                    'by_reference' => false
+                    'by_reference' => false // Pour que le choix des catégories soit enregistré en base (en même temps que le trick via le flush dans notre TrickController), il faudrait que Symfony puisse faire $trick->setCategory() or dans l'entité Trick qui est en ManyToMany avec category il n'y a pas de setCategory(). Par contre il y a un addCategory(). Le paramètre by_reference avec la valeur false indique à Doctrine que la relation entre l'entité parente et l'entité enfant doit être gérée en utilisant une collection de type PersistentCollection. Cela signifie que les changements apportés aux objets enfants de la collection seront automatiquement suivis par Doctrine et seront persistés en base de données. En fait il clone l'objet, ce qui oblige le framework à appeler le setter sur l'objet parent.
                 ]
             );
     }
