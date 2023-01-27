@@ -43,13 +43,16 @@ class CommentRepository extends ServiceEntityRepository
     /**
      * @return Comment[] Returns an array of Comment objects paginated
      */
-    public function findCommentsPaginated(int $currentPage, int $limit = 10): array
+    public function findCommentsPaginated($trickSlug, int $currentPage, int $limit = 10): array
     {
         $result = [];
         $query = $this->getEntityManager()->createQueryBuilder()
-            ->select('c, u')
+            ->select('c, u, t')
             ->from('App\Entity\Comment', 'c')
             ->join('c.user', 'u')
+            ->join('c.trick', 't')
+            ->where('t.slug = :trickSlug')
+            ->setParameter('trickSlug', $trickSlug)
             ->setMaxResults($limit) // retourne seulement les résultats $limit
             ->setFirstResult(($currentPage * $limit) - $limit) // saute les premiers résultats
             ->orderBy('c.created_date', 'ASC');
@@ -63,7 +66,7 @@ class CommentRepository extends ServiceEntityRepository
             return $result; // tableau vide
         }
         // On calcule le nombre de pages :
-        $totalNumberOfPages = ceil($paginator->count() / $limit); // ceil = arrondi supérieur, $paginator->count() = nbre de tricks
+        $totalNumberOfPages = ceil($paginator->count() / $limit); // ceil = arrondi supérieur
 
         // On remplie notre tableau $result :
         $result['commentsData']  = $commentsData;

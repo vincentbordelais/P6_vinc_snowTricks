@@ -72,6 +72,12 @@
 
 		<div class="container"> {% block body %}{% endblock %}
 			</div>
-		</body>
-	</html>
-</body></html>
+
+		{% block footer %}
+            <footer style="position: absolute; width: 100%; background-color: #2C3E50; color: whitesmoke; padding: 20px 0; text-align: center;">
+                <p>Copyright @ vinc 2023</p>
+            </footer>
+        {% endblock %}
+
+	</body>
+</html>

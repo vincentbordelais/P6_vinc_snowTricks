@@ -69,6 +69,7 @@
 {% block javascripts %}
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<script>
+		var isAdmin = {{ is_granted('ROLE_ADMIN') ? 'true' : 'false' }};
 		$(document).ready(function () {
 			var page = 1;
 			var morePages = true;
@@ -87,17 +88,32 @@
 				}
 			});
 		});
-		
 		function loadComments(page) {
 			$.ajax({
 				type: 'GET',
+				// #[Route('/trick/{trickSlug}/commentaires', name: 'trick_getComments', methods:["GET"])]
 				url: '/trick/' + '{{ trickSlug }}' + '/commentaires?page=' + page,
-				dataType: 'json',
+				dataType: 'json',				
 				success: function (data) {
 					for (var i = 0; i < data.limit; i++) {
+						console.log(data.commentsData[i].trick.slug);
 						var date = new Date(data.commentsData[i].created_date);
 						var dateFormatted = date.toLocaleDateString() + ' à ' + date.toLocaleTimeString("fr-FR", {hour: '2-digit', minute:'2-digit'});
-						$("#js-comments").append("<p>Ecrit le " + dateFormatted + " par " + data.commentsData[i].user.username + "</p>" + "<p>" + data.commentsData[i].comment + "</p>");
+						var com = $("<p>Ecrit le " + dateFormatted + " par " + data.commentsData[i].user.username + "</p>" + "<p>" + data.commentsData[i].comment + "</p>");
+
+						// Ajout du bouton "supprimer" si Admin :
+						if (isAdmin) {
+							// #[Route('/commentaires/{comment_id}/{trick_slug}/supprimer', name: 'comment_delete')]
+							var deleteBtn = $("<a>")
+								.attr("href", "/commentaires/" + data.commentsData[i].id + "/" + "{{ trickSlug }}" + "/supprimer")
+								.addClass("btn btn-danger")
+								.text("Supprimer");
+								
+							$("#js-comments").append(com);
+							$("#js-comments").append(deleteBtn);
+						} else {
+							$("#js-comments").append(com);
+						}
 					}
 					if (page >= data.totalNumberOfPages) {
 						morePages = false;

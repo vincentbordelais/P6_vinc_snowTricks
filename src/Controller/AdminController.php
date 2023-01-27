@@ -5,11 +5,14 @@ namespace App\Controller;
 use App\Entity\Trick;
 use App\Entity\Comment;
 use App\Form\TrickType;
+use App\Repository\CommentRepository;
+use App\Repository\TrickRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Require ROLE_AUTHOR for all the actions of this controller
@@ -55,15 +58,15 @@ class AdminController extends AbstractController
         return $this->redirectToRoute('trick_showAll');
     }
 
-    #[Route('/comment/{id}/supprimer', name: 'comment_delete')]
-    public function deleteComment(Comment $comment, EntityManagerInterface $em): Response
+    #[Route('/commentaires/{comment_id}/{trick_slug}/supprimer', name: 'comment_delete')]
+    public function deleteComment(CommentRepository $commentRepository, $comment_id, EntityManagerInterface $em, $trick_slug): Response
     {
         $this->denyAccessUnlessGranted("ROLE_ADMIN");
 
-        $comment->getComment();
+        $comment = $commentRepository->find($comment_id);
         $em->remove($comment);
         $em->flush();
 
-        return $this->redirectToRoute('trick_showOne', ['slug' => $comment->getTrick()->getSlug()]);
+        return $this->redirectToRoute('trick_showOne', ['trickSlug' => $trick_slug]);
     }
 }

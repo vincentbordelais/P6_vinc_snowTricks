@@ -105,16 +105,17 @@ class TrickController extends AbstractController
 
     #[Route('/trick/{trickSlug}/commentaires', name: 'trick_getComments', methods:["GET"])]
     // /trick/TestNom1/commentaires?page=3
-    public function getComments(CommentRepository $commentRepository, Request $request)
+    public function getComments(CommentRepository $commentRepository, Request $request, $trickSlug)
     {
         // On va chercher le numéro de page dans l'url :
         $currentPage = $request->query->getInt('page', 1);
 
         // On va chercher le tableau (liste des commentaires + total de pages + limit) :
-        $commentsPagination = $commentRepository->findCommentsPaginated($currentPage, 10); // limit est imposé à 10 par OC
+        $commentsPagination = $commentRepository->findCommentsPaginated($trickSlug, $currentPage, 10); // limit est imposé à 10 par OC
         // dd($commentsPagination);
 
-        return $this->json($commentsPagination, 200, [], ['groups' => 'comment:read']); // $this->json() utilise SerializerInterface
+        return $this->json($commentsPagination, 200, [], ['groups' => 'comment:read']);
+        // $this->json() utilise SerializerInterface
     }
 
     #[Route('/tricks/catégorie/{categorySlug}', name: 'trick_showByCategory')]
