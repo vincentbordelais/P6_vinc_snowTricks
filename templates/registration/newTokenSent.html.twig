@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Votre token a expiré</h1>
+    <div class="row mt-5">
+        <div class="col-6 mt-5 mx-auto">
+            <p>Un nouveau token a été envoyé à votre adresse e-mail {{ email }}.</p>
+            <p>Veuillez vérifier votre boîte de réception et cliquer sur le lien de confirmation pour activer votre compte.
+            Ce lien permettant l'activation de votre compte expirera dans 3 heures.</p>
+        </div>    
+	</div>
+{% endblock %}
+

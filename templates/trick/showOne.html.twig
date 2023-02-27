@@ -95,8 +95,9 @@
 				url: '/trick/' + '{{ trickSlug }}' + '/commentaires?page=' + page,
 				dataType: 'json',				
 				success: function (data) {
-					for (var i = 0; i < data.limit; i++) {
-						console.log(data.commentsData[i].trick.slug);
+					// On boucle une page :
+					for (var i = 1; i <= data.commentsData.length; i++) {
+						// data.commentsData.length = nombre de comments par page
 						var date = new Date(data.commentsData[i].created_date);
 						var dateFormatted = date.toLocaleDateString() + ' à ' + date.toLocaleTimeString("fr-FR", {hour: '2-digit', minute:'2-digit'});
 						var com = $("<p>Ecrit le " + dateFormatted + " par " + data.commentsData[i].user.username + "</p>" + "<p>" + data.commentsData[i].comment + "</p>");
@@ -108,7 +109,7 @@
 								.attr("href", "/commentaires/" + data.commentsData[i].id + "/" + "{{ trickSlug }}" + "/supprimer")
 								.addClass("btn btn-danger")
 								.text("Supprimer");
-								
+
 							$("#js-comments").append(com);
 							$("#js-comments").append(deleteBtn);
 						} else {

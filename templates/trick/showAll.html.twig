@@ -8,7 +8,7 @@
 	<div class="row">
 		{% for trick in tricksPagination.tricksPerPage %}
 			<div class="col-3 mb-3">
-				<div class="border border-dark rounded p-2">
+				<div class="border border-dark rounded p-2 h-100">
 					<h2>{{ trick.name }}</h2>
 					<div class="content">Ecrit le
 						{{ trick.createdDate | date('d/m/Y') }}

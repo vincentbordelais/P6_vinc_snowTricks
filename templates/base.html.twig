@@ -66,9 +66,17 @@
 			</div>
 		</nav>
 
-		{% for message in app.flashes('success') %}
-			<div class="alert alert-success">{{ message }}</div>
-		{% endfor %}
+		{% include "_partials/_flash.html.twig" %}
+
+		{# {% if app.user and app.user.isVerified == false %} #}
+		{# {% if app.user is defined and not app.user.is_authenticated is defined %}
+			<div class="alert alert-warning alert-dismissible" role="alert">
+				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+				<div class="alert-message">
+					<strong>Votre compte n'est pas activé</strong>, <a href="{{ path('resend_verif') }}">renvoyer le lien d'activation</a>
+				</div>
+			</div>
+		{% endif %} #}
 
 		<div class="container"> {% block body %}{% endblock %}
 			</div>

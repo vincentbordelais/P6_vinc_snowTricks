@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\Collection;
@@ -68,6 +69,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Comment::class)]
     private Collection $comments;
+
+    #[ORM\Column(length: 255, nullable:true)]
+    private $confirmationToken;
+
+    #[ORM\Column(type: "datetime", nullable: true)]
+    private ?DateTime $confirmationTokenExpiresAt = null;
+
+    #[ORM\Column]
+    private ?bool $is_verified = false;
 
     public function __construct()
     {
@@ -249,6 +259,58 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $comment->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * Get the value of confirmationToken
+     */ 
+    public function getConfirmationToken()
+    {
+        return $this->confirmationToken;
+    }
+
+    /**
+     * Set the value of confirmationToken
+     *
+     * @return  self
+     */ 
+    public function setConfirmationToken($confirmationToken)
+    {
+        $this->confirmationToken = $confirmationToken;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of confirmationTokenExpiresAt
+     */ 
+    public function getConfirmationTokenExpiresAt()
+    {
+        return $this->confirmationTokenExpiresAt;
+    }
+
+    /**
+     * Set the value of confirmationTokenExpiresAt
+     *
+     * @return  self
+     */ 
+    public function setConfirmationTokenExpiresAt($confirmationTokenExpiresAt)
+    {
+        $this->confirmationTokenExpiresAt = $confirmationTokenExpiresAt;
+
+        return $this;
+    }
+
+    public function getIsVerified(): ?bool
+    {
+        return $this->is_verified;
+    }
+
+    public function setIsVerified(bool $is_verified): self
+    {
+        $this->is_verified = $is_verified;
 
         return $this;
     }
