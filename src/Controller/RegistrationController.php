@@ -6,8 +6,8 @@ use DateTime;
 use DateInterval;
 use DateTimeZone;
 use App\Entity\User;
+use App\Form\RegistrationType;
 use App\Service\SendMailService;
-use App\Form\RegistrationFormType;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,25 +34,27 @@ class RegistrationController extends AbstractController
     public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher): Response
     {
         $user = new User();
-        $form = $this->createForm(RegistrationFormType::class, $user);
+        $form = $this->createForm(RegistrationType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $user->setPassword($userPasswordHasher->hashPassword($user, $form->get('password')->getData()));
+            $user->setPassword($userPasswordHasher->hashPassword(
+                $user, $form->get('password')->getData()
+            ));
             $token = bin2hex(random_bytes(16));
-            $user->setConfirmationToken($token);
+            $user->setLoginToken($token);
             $now = new DateTime('now', new DateTimeZone('Europe/Paris'));
             $expirationDate = $now->add(new DateInterval('PT'. 30 .'S'));
-            $user->setConfirmationTokenExpiresAt($expirationDate);
+            $user->setLoginTokenExpiresAt($expirationDate);
             $user->setRoles(['ROLE_USER']);
             $this->entityManager->persist($user);
             $this->entityManager->flush();
 
             $this->mailService->send(
-                'no-reply@example.com', // from
+                'no-reply@snowtricks.fr', // from
                 $user->getEmail(),  // to
-                'Activation de votre compte sur le site SnowTricks', // subject
-                'registration/activationEmail.html.twig',['user' => $user, 'token' => $token]);
+                'SnowTricks - Activation de votre compte', // subject
+                'registration/activation_email.html.twig',['user' => $user, 'token' => $token]); // context
 
             return $this->redirectToRoute('registration_pre_activation', ['email' => $user->getEmail()]);
         }
@@ -72,7 +74,7 @@ class RegistrationController extends AbstractController
     #[Route('/inscription/activation/{token}', name: 'registration_activation')] // lien du 1ier mail
     public function activation(string $token): Response
     {
-        $user = $this->userRepository->findOneBy(['confirmationToken' => $token]);
+        $user = $this->userRepository->findOneBy(['login_token' => $token]);
 
         if (!$user) {
             throw new NotFoundHttpException('Cet utilisateur n\'existe pas.');
@@ -81,7 +83,7 @@ class RegistrationController extends AbstractController
         $now = new DateTime('now', new DateTimeZone('Europe/Paris'));
         
         // Le token a expiré
-        if ($user->getConfirmationTokenExpiresAt()->format('Y-m-d\TH:i:s\Z') < $now->format('Y-m-d\TH:i:s\Z')) {
+        if ($user->getLoginTokenExpiresAt()->format('Y-m-d\TH:i:s\Z') < $now->format('Y-m-d\TH:i:s\Z')) {
             $lien = $this->generateUrl('registration_reactivate', ['email' => $user->getEmail()]);
             $message = 'Le lien de confirmation que vous avez suivi a expiré. Veuillez renvoyer une demande d\'activation. <a href="' . $lien . '">Nouvelle demande d\'activation</a>';
             $this->addFlash('warning', $message);
@@ -90,9 +92,9 @@ class RegistrationController extends AbstractController
         }
 
         // Le token est toujours valide
-        $user->setIsVerified(true);
-        $user->setConfirmationToken(null);
-        $user->setConfirmationTokenExpiresAt(null);
+        $user->setLoginIsVerified(true);
+        $user->setLoginToken(null);
+        $user->setLoginTokenExpiresAt(null);
         $this->entityManager->flush();
 
         $this->addFlash('success', 'Votre compte est activé, vous pouvez vous connecter');
@@ -108,34 +110,34 @@ class RegistrationController extends AbstractController
             throw new NotFoundHttpException('Cet utilisateur n\'existe pas.');
         }
 
-        if ($user->getIsVerified()) {
+        if ($user->getLoginIsVerified()) {
             throw new \Exception('Ce compte a déjà été activé.');
         }
 
         $now = new DateTime('now', new DateTimeZone('Europe/Paris'));
         
         // Le token a encore expiré
-        if ($user->getConfirmationTokenExpiresAt()->format('Y-m-d\TH:i:s\Z') < $now->format('Y-m-d\TH:i:s\Z')) {
+        if ($user->getLoginTokenExpiresAt()->format('Y-m-d\TH:i:s\Z') < $now->format('Y-m-d\TH:i:s\Z')) {
             $token = bin2hex(random_bytes(16)); // génère un nouveau token
-            $user->setConfirmationToken($token);
+            $user->setLoginToken($token);
             $expirationDate = $now->add(new DateInterval('PT'. 30 .'S'));
-            $user->setConfirmationTokenExpiresAt($expirationDate);
+            $user->setLoginTokenExpiresAt($expirationDate);
             $this->entityManager->persist($user);
             $this->entityManager->flush();
 
             $this->mailService->send(
-                'no-reply@example.com', // from
+                'no-reply@snowtricks.fr', // from
                 $user->getEmail(),  // to
-                'Activation de votre compte sur le site SnowTricks', // subject
-                'registration/activationEmail.html.twig',['user' => $user, 'token' => $token]);
+                'SnowTricks - Activation de votre compte', // subject
+                'registration/activation_email.html.twig',['user' => $user, 'token' => $token]); // context
 
             return $this->redirectToRoute('registration_pre_activation', ['email' => $user->getEmail()]);
             
         }
         // Le token est toujours valide
-        $user->setIsVerified(true);
-        $user->setConfirmationToken(null);
-        $user->setConfirmationTokenExpiresAt(null);
+        $user->setLoginIsVerified(true);
+        $user->setLoginToken(null);
+        $user->setLoginTokenExpiresAt(null);
         $this->entityManager->flush();
 
         $this->addFlash('success', 'Votre compte est activé, vous pouvez vous connecter');

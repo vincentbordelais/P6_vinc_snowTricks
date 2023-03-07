@@ -4,7 +4,7 @@
 {% endblock %}
 
 {% block body %}
-	<p>Liste de Tricks</p>
+	<h4>Liste des Tricks de la catégorie {{ categorySlug }}</h4>
 	<div class="row">
 		{% for trick in tricksPagination.tricksPerPage %}
 			<div class="col-3 mb-3">

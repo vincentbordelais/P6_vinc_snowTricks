@@ -70,14 +70,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Comment::class)]
     private Collection $comments;
 
+    #[ORM\Column]
+    private ?bool $login_is_verified = false;
+
     #[ORM\Column(length: 255, nullable:true)]
-    private $confirmationToken;
+    private $login_token;
 
     #[ORM\Column(type: "datetime", nullable: true)]
-    private ?DateTime $confirmationTokenExpiresAt = null;
+    private ?DateTime $login_token_expires_at = null;
 
-    #[ORM\Column]
-    private ?bool $is_verified = false;
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    private $password_token;
 
     public function __construct()
     {
@@ -263,54 +266,74 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * Get the value of confirmationToken
-     */ 
-    public function getConfirmationToken()
+    public function getLoginIsVerified(): ?bool
     {
-        return $this->confirmationToken;
+        return $this->login_is_verified;
     }
 
-    /**
-     * Set the value of confirmationToken
-     *
-     * @return  self
-     */ 
-    public function setConfirmationToken($confirmationToken)
+    public function setLoginIsVerified(bool $login_is_verified): self
     {
-        $this->confirmationToken = $confirmationToken;
+        $this->login_is_verified = $login_is_verified;
 
         return $this;
     }
 
     /**
-     * Get the value of confirmationTokenExpiresAt
+     * Get the value of login_token
      */ 
-    public function getConfirmationTokenExpiresAt()
+    public function getLoginToken()
     {
-        return $this->confirmationTokenExpiresAt;
+        return $this->login_token;
     }
 
     /**
-     * Set the value of confirmationTokenExpiresAt
+     * Set the value of login_token
      *
      * @return  self
      */ 
-    public function setConfirmationTokenExpiresAt($confirmationTokenExpiresAt)
+    public function setLoginToken($login_token)
     {
-        $this->confirmationTokenExpiresAt = $confirmationTokenExpiresAt;
+        $this->login_token = $login_token;
 
         return $this;
     }
 
-    public function getIsVerified(): ?bool
+    /**
+     * Get the value of login_token_expires_at
+     */ 
+    public function getLoginTokenExpiresAt()
     {
-        return $this->is_verified;
+        return $this->login_token_expires_at;
     }
 
-    public function setIsVerified(bool $is_verified): self
+    /**
+     * Set the value of login_token_expires_at
+     *
+     * @return  self
+     */ 
+    public function setLoginTokenExpiresAt($login_token_expires_at)
     {
-        $this->is_verified = $is_verified;
+        $this->login_token_expires_at = $login_token_expires_at;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of password_token
+     */ 
+    public function getPasswordToken()
+    {
+        return $this->password_token;
+    }
+
+    /**
+     * Set the value of password_token
+     *
+     * @return  self
+     */ 
+    public function setPasswordToken($password_token)
+    {
+        $this->password_token = $password_token;
 
         return $this;
     }

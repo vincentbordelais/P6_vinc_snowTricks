@@ -39,7 +39,7 @@ class TrickController extends AbstractController
         // On va chercher le tableau (liste des tricks + total de pages + limit) :
         $tricksPagination = $trickRepository->findTricksPaginated($currentPage, 2); // limit = 2
 
-        return $this->render('trick/showAll.html.twig', [
+        return $this->render('trick/show_all.html.twig', [
             'tricksPagination' => $tricksPagination,
             'currentPage' => $currentPage,
         ]);
@@ -96,7 +96,7 @@ class TrickController extends AbstractController
             return $this->redirectToRoute('trick_showOne', array('trickSlug' => $trick->getSlug()));
         }
 
-        return $this->renderForm('trick/showOne.html.twig', [
+        return $this->renderForm('trick/show_one.html.twig', [
             'trick' => $trick,
             'trickSlug' => $trickSlug,
             'formComment' => $form,
@@ -127,7 +127,7 @@ class TrickController extends AbstractController
         // On va chercher le tableau (liste des tricks par catégorie + total de pages +limit) :
         $tricksPagination = $trickRepository->findTricksByCategoryPaginated($categorySlug, $currentPage, 2); // limit = 2
 
-        return $this->render('trick/showByCategory.html.twig', [
+        return $this->render('trick/show_by_category.html.twig', [
             'tricksPagination' => $tricksPagination,
             'currentPage' => $currentPage,
             'categorySlug' => $categorySlug,

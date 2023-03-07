@@ -27,7 +27,7 @@ class CategoryController extends AbstractController
     public function showAll(CategoryRepository $categoryRepository): Response
     {
         $categories = $categoryRepository->findAll();
-        return $this->render('category/showAll.html.twig', [
+        return $this->render('category/show_all.html.twig', [
             'categories' => $categories,
         ]);
     }
@@ -61,7 +61,7 @@ class CategoryController extends AbstractController
     #[Route('/categorie/{slug}', name: 'category_showOne')]
     public function showOne(Category $category): Response
     {
-        return $this->render('category/showOne.html.twig', [
+        return $this->render('category/show_one.html.twig', [
             'category' => $category
         ]);
     }
