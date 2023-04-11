@@ -50,6 +50,7 @@ class TrickRepository extends ServiceEntityRepository
         $tricks = $this->getEntityManager()->createQueryBuilder()
             ->select('t')
             ->from('App\Entity\Trick', 't')
+            ->orderBy('t.updatedDate', 'DESC')
             ->setMaxResults($limit)
             ->setFirstResult(($currentPage * $limit) - $limit);
 
@@ -85,6 +86,7 @@ class TrickRepository extends ServiceEntityRepository
             ->join('t.categories', 'c')
             ->where('c.slug = :categorySlug')
             ->setParameter('categorySlug', $categorySlug)
+            ->orderBy('t.updatedDate', 'DESC')
             ->setMaxResults($limit)
             ->setFirstResult(($currentPage * $limit) - $limit);
 

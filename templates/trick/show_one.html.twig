@@ -1,8 +1,6 @@
 {% extends 'base.html.twig' %}
 {% form_theme formComment 'bootstrap_5_layout.html.twig' %}
-{% block title %}
-	Un Trick
-{% endblock %}
+{% block title %} {{ trick.name }} {% endblock %}
 
 {% block body %}
 	<section class="trick">
@@ -31,6 +29,12 @@
 				</p>
 			</div>
 		</article>
+		
+		{% for image in trick.getImages() %} {# ou: in trick.images #}
+			<div>
+				<img src="{{ asset('/uploads/images/' ~ image.name) }}" alt="Image" width="150">
+			</div>
+		{% endfor %}
 	</section>
 
 	<section class="trick">
@@ -41,7 +45,7 @@
 				</a>
 			{% endif %}
 			{% if is_granted("TRICK_DELETE", trick) %}
-				<a href="{{ path('trick_delete', {'slug':trick.slug}) }}" class="btn btn-danger">
+				<a href="{{ path('trick_delete', {'slug':trick.slug}) }}" class="btn btn-danger" onclick="return confirm('Voulez-vous supprimer ce Trick ?')">
 					<i class="fas fa-trash-alt"></i>
 				</a>
 			{% endif %}
@@ -99,8 +103,33 @@
 					for (var i = 1; i <= data.commentsData.length; i++) {
 						// data.commentsData.length = nombre de comments par page
 						var date = new Date(data.commentsData[i].created_date);
-						var dateFormatted = date.toLocaleDateString() + ' à ' + date.toLocaleTimeString("fr-FR", {hour: '2-digit', minute:'2-digit'});
-						var com = $("<p>Ecrit le " + dateFormatted + " par " + data.commentsData[i].user.username + "</p>" + "<p>" + data.commentsData[i].comment + "</p>");
+						var dateFormatted = date.toLocaleDateString() + ' à '
+							+ date.toLocaleTimeString("fr-FR", {hour: '2-digit', minute:'2-digit'});
+
+						// console.log(data.commentsData[i].user.picture);
+
+						// Création de l'élément image
+                        var picture = $("<img>")
+                            .attr("public", "/uploads/pictures/" + data.commentsData[i].user.picture)
+                            .attr("alt", "Photo de " + data.commentsData[i].user.username)
+                            .addClass("user-picture");
+
+                        // Création de l'élément username
+                        var username = $("<span>")
+                            .text(data.commentsData[i].user.username)
+                            .addClass("username");
+
+                        // Création de l'élément commentaire
+                        var com = $("<p>")
+                            .append("Ecrit le " + dateFormatted + " par ")
+                            .append(picture)
+                            .append(username)
+                            .append("<br>")
+                            .append(data.commentsData[i].comment);
+
+						// var com = $("<p>Ecrit le " + dateFormatted
+						// 	+ " par " + data.commentsData[i].user.username
+						// 	+ "</p>" + "<p>" + data.commentsData[i].comment + "</p>");
 
 						// Ajout du bouton "supprimer" si Admin :
 						if (isAdmin) {

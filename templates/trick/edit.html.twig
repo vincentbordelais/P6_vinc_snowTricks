@@ -4,15 +4,27 @@
 {% endblock %}
 
 {% block body %}
-	<h1>Mise à jour d'un Trick</h1>
+	<h2>Mise à jour d'un Trick</h2>
 
 	{{ form_start(formTrick, {'attr': {'novalidate': 'novalidate'}}) }}
 
 	{{ form_row(formTrick.name, {'attr' : {'placeholder' : "Nom" }}) }}
 
+	{{ form_row(formTrick.description, {'attr' : {'placeholder' : "Description" }}) }}
+
 	{{ form_row(formTrick.categories, {'attr' : {'placeholder' : "Catégorie" }}) }}
 
-	{{ form_row(formTrick.description, {'attr' : {'placeholder' : "Description" }}) }}
+	{{ form_row(formTrick.image) }}
+
 	<button type="submit" class="btn btn-success">Modifier le Trick</button>
 	{{ form_end(formTrick) }}
+
+
+	{% block javascrits %}
+		<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+		<script>
+
+	
+		</script>
+	{% endblock %}
 {% endblock %}

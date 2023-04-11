@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Image;
 use App\Entity\Trick;
 use App\Entity\Comment;
 use App\Form\TrickType;
@@ -11,9 +12,13 @@ use App\Repository\CommentRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class TrickController extends AbstractController
 {
@@ -37,7 +42,7 @@ class TrickController extends AbstractController
         $currentPage = $request->query->getInt('page', 1);
 
         // On va chercher le tableau (liste des tricks + total de pages + limit) :
-        $tricksPagination = $trickRepository->findTricksPaginated($currentPage, 2); // limit = 2
+        $tricksPagination = $trickRepository->findTricksPaginated($currentPage, 3); // limit = 3
 
         return $this->render('trick/show_all.html.twig', [
             'tricksPagination' => $tricksPagination,
@@ -48,7 +53,7 @@ class TrickController extends AbstractController
     #[Route('/trick/creer', name: 'trick_new')]
     public function newTrick(Request $request, EntityManagerInterface $em): Response
     {
-        // make sure the user is authenticated first,
+        // D'abord vérifier que l'utilisateur est authentifié
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
         $trick = new Trick();
@@ -62,6 +67,21 @@ class TrickController extends AbstractController
             $trick->setUpdatedDate(new \DateTime());
             $trick->setAuthor($this->getUser());
             $trick->setSlug($this->slugger->slug($trick->getName()));
+
+            // On récupère les images saisies dans le formulaire :
+            $images = $form->get('image')->getData();
+
+            foreach ($images as $image) {
+                // On renome de fichier image qu'on stocke en webp :
+                $imageFileName = md5(uniqid()) . '.webp';
+                // On copie physiquement le fichier dans le dossier uploads :
+                $image->move($this->getParameter('images_directory'), $imageFileName);
+                // On stocke le nom de l'image dans la BDD : On va créer une nouvelle instance de l'entité image dans laquelle on faire un setName() puis on va ajouter cette instance dans l'entité Trick.
+                $img = new Image();
+                $img->setName($imageFileName);
+                $trick->addImage($img);
+            }
+
             $em->persist($trick);
             $em->flush();
 
@@ -70,8 +90,8 @@ class TrickController extends AbstractController
             return $this->redirectToRoute('trick_showAll');
         }
 
-        return $this->renderForm('trick/new.html.twig', [
-            'formTrick' => $form
+        return $this->render('trick/new.html.twig', [
+            'formTrick' => $form,
         ]);
     }
 
@@ -80,7 +100,11 @@ class TrickController extends AbstractController
     {
         // Récupération du trick associé au slug :
         $trick = $trickRepository->findOneBy(['slug' => $trickSlug]);
+        if(!$trick){
+            throw new NotFoundHttpException("Pas de Trick trouvé"); // c'est pas redondant avec "Page non trouvée"?
+        }
 
+        // Formulaire du commentaire :
         $comment = new Comment();
         $form = $this->createForm(CommentType::class, $comment);
 
@@ -96,15 +120,83 @@ class TrickController extends AbstractController
             return $this->redirectToRoute('trick_showOne', array('trickSlug' => $trick->getSlug()));
         }
 
-        return $this->renderForm('trick/show_one.html.twig', [
+        return $this->render('trick/show_one.html.twig', [
             'trick' => $trick,
             'trickSlug' => $trickSlug,
             'formComment' => $form,
         ]);
     }
 
-    #[Route('/trick/{trickSlug}/commentaires', name: 'trick_getComments', methods:["GET"])]
-    // /trick/TestNom1/commentaires?page=3
+    #[Route('/trick/{slug}/modifier', name: 'trick_edit')]
+    public function editTrick(Trick $trick, Request $request, EntityManagerInterface $em): Response
+    {
+        // D'abord vérifier que l'utilisateur est authentifié
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+        // Et s'assurer que l'utilisateur est l'auteur :
+        $this->denyAccessUnlessGranted("TRICK_EDIT", $trick); // ok
+
+        $form = $this->createForm(TrickType::class, $trick);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            // On récupère les images saisies dans le formulaire :
+            $images = $form->get('image')->getData();
+
+            foreach ($images as $image) {
+                // On renome de fichier image qu'on stocke en webp :
+                $imageFileName = md5(uniqid()) . '.webp';
+                // On copie physiquement le fichier dans le dossier uploads :
+                $image->move($this->getParameter('images_directory'), $imageFileName);
+                // On stocke le nom de l'image dans la BDD : On va créer une nouvelle instance de l'entité image dans laquelle on faire un setName() puis on va ajouter cette instance dans l'entité Trick.
+                $img = new Image();
+                $img->setName($imageFileName);
+                $trick->addImage($img);
+            }
+
+            $trick = $form->getData();
+            $trick->setUpdatedDate(new \DateTime());
+            // $trick->setCategory() Il n'y a pas de setCategory
+            $em->persist($trick);
+            $em->flush();
+            return $this->redirectToRoute('trick_showAll');
+        }
+
+        return $this->render('trick/edit.html.twig', [
+            'trick' => $trick,
+            'formTrick' => $form,
+        ]);
+    }
+
+    #[Route('/trick/{slug}/supprimer', name: 'trick_delete')]
+    public function deleteTrick(Trick $trick, EntityManagerInterface $em): Response
+    {
+        // D'abord vérifier que l'utilisateur est authentifié
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+        // Et s'assurer que l'utilisateur est l'auteur :
+        $this->denyAccessUnlessGranted("TRICK_DELETE", $trick);
+
+        // On supprime physiquement les images :
+        $images = $trick->getImages();
+        if($images){
+            foreach ($images as $image) {
+                // on récupère le chemin :
+                $nomImage = $this->getParameter("images_directory") . '/' . $image->getName();
+                // on vérifie si l'image existe :
+                if(file_exists($nomImage)){ // return true
+                    // on la supprime :
+                    unlink($nomImage);
+                }
+            }
+        }
+        $em->remove($trick);
+        $em->flush();
+
+        return $this->redirectToRoute('trick_showAll');
+    }
+
+
+    #[Route('/trick/{trickSlug}/commentaires', name: 'trick_getComments', methods: ["GET"])]
+    // exemple: /trick/TestNom1/commentaires?page=3
     public function getComments(CommentRepository $commentRepository, Request $request, $trickSlug)
     {
         // On va chercher le numéro de page dans l'url :
@@ -125,7 +217,7 @@ class TrickController extends AbstractController
         $currentPage = $request->query->getInt('page', 1);
 
         // On va chercher le tableau (liste des tricks par catégorie + total de pages +limit) :
-        $tricksPagination = $trickRepository->findTricksByCategoryPaginated($categorySlug, $currentPage, 2); // limit = 2
+        $tricksPagination = $trickRepository->findTricksByCategoryPaginated($categorySlug, $currentPage, 3); // limit = 3
 
         return $this->render('trick/show_by_category.html.twig', [
             'tricksPagination' => $tricksPagination,

@@ -47,7 +47,7 @@ class CommentRepository extends ServiceEntityRepository
     {
         $result = [];
         $query = $this->getEntityManager()->createQueryBuilder()
-            ->select('c, u, t')
+            ->select('c, u, t') // récupère les objets Comment, User et Trick
             ->from('App\Entity\Comment', 'c')
             ->join('c.user', 'u')
             ->join('c.trick', 't')

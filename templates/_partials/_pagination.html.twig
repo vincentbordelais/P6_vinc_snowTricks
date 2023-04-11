@@ -2,8 +2,7 @@
 	<nav>
 		<ul class="pagination">
 			{% if currentPage > 1 %}
-				<li
-					class="page-item">
+				<li class="page-item">
 					{# Page précédente #}
 					<a href="{{ path(path, param1) }}" class="page-link">&lt;</a>
 				</li>
@@ -20,8 +19,7 @@
 			{% endfor %}
 
 			{% if currentPage < totalOfPages %}
-				<li
-					class="page-item">
+				<li class="page-item">
 					{# Page suivante #}
 					<a href="{{ path(path, param3) }}" class="page-link">&gt;</a>
 				</li>
