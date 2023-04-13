@@ -12,11 +12,9 @@ use App\Repository\CommentRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\String\Slugger\SluggerInterface;
-use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -224,5 +222,36 @@ class TrickController extends AbstractController
             'currentPage' => $currentPage,
             'categorySlug' => $categorySlug,
         ]);
+    }
+
+    #[Route('/tricks/suppression_image/{id}', name: 'trick_delete_image', methods: ['DELETE'])]
+    public function deleteImage(Image $image, Request $request, EntityManagerInterface $em): JsonResponse
+    {
+        // On récupère le contenu de la requête json sous forme de tableau
+        $data = json_decode($request->getContent(), true);
+
+        // On vérifie si le jeton CSRF contenu dans le tableau associatif est valide en utilisant la méthode isCsrfTokenValid().
+        // Lorsque le client envoie une requête au serveur, il doit inclure le jeton CSRF dans la requête pour prouver qu'il est bien un utilisateur autorisé et non un attaquant.
+        // isCsrfTokenValid() prend 2 paramètres : la clé utilisée pour stocker le jeton CSRF dans la session du client, qui est générée en concaténant la chaîne "delete" avec l'ID de l'image à supprimer, et la valeur du jeton CSRF qui a été envoyée avec la requête HTTP.
+        // isCsrfTokenValid() compare la valeur du jeton CSRF stockée dans la session avec la valeur envoyée dans la requête AJAX pour vérifier que l'utilisateur qui effectue la demande est autorisé à le faire. Icis, la clé utilisée pour stocker le jeton CSRF dans la session est générée en concaténant la chaîne "delete" avec l'ID de l'image à supprimer.
+        if($this->isCsrfTokenValid('delete' . $image->getId(), $data['_token'])){
+            // Si le token csrf est valide:
+            // On supprimer le fichier de l'image
+            $imagePath = $this->getParameter('images_directory') . '/' . $image->getName();
+            if (file_exists($imagePath)) {
+                unlink($imagePath);
+            }
+
+            // On supprime l'image de la base de données
+            $em->remove($image);
+            $em->flush();
+
+            return new JsonResponse(['success' => true], 200);
+            
+            // La suppression a échoué
+            return new JsonResponse(['error' => 'Erreur de suppression'], 400);
+        }
+
+        return new JsonResponse(['error' => 'Token invalide'], 400);
     }
 }

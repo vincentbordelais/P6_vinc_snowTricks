@@ -14,6 +14,13 @@
 
 	{{ form_row(formTrick.categories, {'attr' : {'placeholder' : "Catégorie" }}) }}
 
+	{% for image in trick.images %}
+		<div>
+			<img src="{{ asset('/uploads/images/' ~ image.name) }}" alt="Image" width="150">
+			<a href="{{ path('trick_delete_image', {id: image.id}) }}" link-delete data-token="{{ csrf_token('delete' ~ image.id) }}">Supprimer</a>
+		</div>
+	{% endfor %}
+	
 	{{ form_row(formTrick.image) }}
 
 	<button type="submit" class="btn btn-success">Modifier le Trick</button>
@@ -23,7 +30,45 @@
 	{% block javascrits %}
 		<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 		<script>
+			let links = document.querySelectorAll("[link-delete]");
 
+			// On boucle sur les liens
+			for(let link of links){
+				// On met un écouteur d'évènements
+				link.addEventListener("click", function(e){
+					// On empêche la navigation
+					e.preventDefault();
+
+					// On demande confirmation
+					if(confirm("Voulez-vous supprimer cette image ?")){
+
+						// On envoie la requête ajax :
+						// fetch() envoye une requête HTTP DELETE au serveur, à l'URL spécifiée dans l'attribut href de l'élément HTML qui a déclenché l'événement.
+						fetch(this.getAttribute("href"), {
+							method: "DELETE",
+							headers: {
+								// L'en-tête "X-Requested-With" indique que la demande est une demande AJAX
+								"X-Requested-With": "XMLHttpRequest",
+								// L'en-tête "Content-Type" indique que les données envoyées au serveur sont au format JSON.
+								"Content-Type": "application/json"
+							},
+							// Les données à envoyer avec la demande sont au format JSON et comprennent une paire clé:valeur. La valeur de la clé "_token" est extraite de l'attribut "data-token" de l'élément HTML qui a déclenché l'événement.
+							body: JSON.stringify({"_token": this.dataset.token})
+						// then() pour traiter la réponse HTTP renvoyée par le serveur, convertie au format JSON.
+						}).then(response => response.json())
+						// then() pour traiter les données JSON renvoyées par le serveur.
+						.then(data => {
+							// Si les données contiennent la clé "success" avec une valeur de vrai, l'élément HTML parent de l'élément qui a déclenché l'événement est supprimé.
+							if(data.success){
+								this.parentElement.remove();
+							// Sinon, une alerte est affichée avec le message d'erreur renvoyé par le serveur dans la clé "error".
+							}else{
+								alert(data.error);
+							}
+						})
+					}
+				});
+			}
 	
 		</script>
 	{% endblock %}

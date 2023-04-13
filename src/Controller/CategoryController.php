@@ -53,7 +53,7 @@ class CategoryController extends AbstractController
             return $this->redirectToRoute('category_showAll');
         }
 
-        return $this->renderForm('category/new.html.twig', [
+        return $this->render('category/new.html.twig', [
             'formCategory' => $form
         ]);
     }
@@ -81,7 +81,7 @@ class CategoryController extends AbstractController
             return $this->redirectToRoute('category_showAll');
         }
 
-        return $this->renderForm('category/edit.html.twig', [
+        return $this->render('category/edit.html.twig', [
             'category' => $category,
             'formCategory' => $form,
         ]);
