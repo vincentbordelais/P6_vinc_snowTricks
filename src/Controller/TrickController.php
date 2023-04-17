@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Image;
 use App\Entity\Trick;
 use App\Entity\Comment;
+use App\Entity\VideoYT;
 use App\Form\TrickType;
 use App\Form\CommentType;
 use App\Repository\TrickRepository;
@@ -34,7 +35,7 @@ class TrickController extends AbstractController
     }
 
     #[Route('/tricks', name: 'trick_showAll')]
-    public function showAll(TrickRepository $trickRepository, Request $request): Response
+    public function showAllTricks(TrickRepository $trickRepository, Request $request): Response
     {
         // On va chercher le numéro de page dans l'url :
         $currentPage = $request->query->getInt('page', 1);
@@ -80,10 +81,24 @@ class TrickController extends AbstractController
                 $trick->addImage($img);
             }
 
+            // On récupère la vidéo :
+            $videoUrl = $form->get('videoUrl')->getData();
+            if (strpos($videoUrl, 'v=') !== false) {
+                $start = strpos($videoUrl, 'v=') + 2;
+                $videoId = substr($videoUrl, $start);
+                
+                // On enregistre la vidéo
+                $vid = new VideoYT();
+                $vid->setYtVideoId($videoId);
+                $trick->setVideoYT($vid);
+            } else {
+                $this->addFlash('error', 'URL de vidéo YouTube non valide.');
+            }
+
             $em->persist($trick);
             $em->flush();
 
-            $this->addFlash('success', "Votre figure a été enregistrée");
+            $this->addFlash('success', "Votre trick a été enregistré");
 
             return $this->redirectToRoute('trick_showAll');
         }
@@ -94,7 +109,7 @@ class TrickController extends AbstractController
     }
 
     #[Route('/trick/{trickSlug}', name: 'trick_showOne')]
-    public function showOne(TrickRepository $trickRepository, CommentRepository $commentRepository, Request $request, EntityManagerInterface $em, $trickSlug): Response
+    public function showOneTrick(TrickRepository $trickRepository, CommentRepository $commentRepository, Request $request, EntityManagerInterface $em, $trickSlug): Response
     {
         // Récupération du trick associé au slug :
         $trick = $trickRepository->findOneBy(['slug' => $trickSlug]);
@@ -149,6 +164,20 @@ class TrickController extends AbstractController
                 $img = new Image();
                 $img->setName($imageFileName);
                 $trick->addImage($img);
+            }
+
+            // On récupère la vidéo :
+            $videoUrl = $form->get('videoUrl')->getData();
+            if (strpos($videoUrl, 'v=') !== false) {
+                $start = strpos($videoUrl, 'v=') + 2;
+                $videoId = substr($videoUrl, $start);
+                
+                // On enregistre la vidéo
+                $vid = new VideoYT();
+                $vid->setYtVideoId($videoId);
+                $trick->setVideoYT($vid);
+            } else {
+                $this->addFlash('error', 'URL de vidéo YouTube non valide.');
             }
 
             $trick = $form->getData();
@@ -249,6 +278,26 @@ class TrickController extends AbstractController
             return new JsonResponse(['success' => true], 200);
             
             // La suppression a échoué
+            return new JsonResponse(['error' => 'Erreur de suppression'], 400);
+        }
+
+        return new JsonResponse(['error' => 'Token invalide'], 400);
+    }
+
+    #[Route('/tricks/suppression_video/{id}', name: 'trick_delete_video', methods: ['DELETE'])]
+    public function deleteVideo(VideoYT $videoYT, Request $request, EntityManagerInterface $em): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+
+        if (!$videoYT) {
+            return new JsonResponse(['success' => false, 'error' => 'La vidéo n\'existe pas.'], 404);
+        }
+        if($this->isCsrfTokenValid('delete' . $videoYT->getId(), $data['_token'])){
+            $em->remove($videoYT);
+            $em->flush();
+
+            return new JsonResponse(['success' => true], 200);
+
             return new JsonResponse(['error' => 'Erreur de suppression'], 400);
         }
 

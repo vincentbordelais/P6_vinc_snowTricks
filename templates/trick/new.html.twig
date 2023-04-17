@@ -13,8 +13,10 @@
 	{{ form_row(formTrick.description, {'attr' : {'placeholder' : "Description" }}) }}
 
 	{{ form_row(formTrick.categories) }}
-
+	<p>Images</p>
 	{{ form_row(formTrick.image) }}
+	<p>Vidéos</p>
+	{{ form_row(formTrick.videoUrl, {'attr' : {'placeholder' : "Saisissez l'Url d'une video YouTube" }}) }}
 
 	<button type="submit" class="btn btn-success">Créer le Trick</button>
 

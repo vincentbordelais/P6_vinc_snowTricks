@@ -35,6 +35,12 @@
 				<img src="{{ asset('/uploads/images/' ~ image.name) }}" alt="Image" width="150">
 			</div>
 		{% endfor %}
+
+		{% if trick.videoYT %}
+			<div>
+				<iframe width="150" height="84" src="https://www.youtube.com/embed/{{ trick.videoYT.ytVideoId }}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+			</div>
+		{% endif %}
 	</section>
 
 	<section class="trick">

@@ -47,7 +47,11 @@ class Trick
     private Collection $categories;
 
     #[ORM\OneToMany(mappedBy: 'trick', targetEntity: Image::class, orphanRemoval: true, cascade: ['persist'])]
+    #[Assert\Count(max: 10, maxMessage: "Vous ne pouvez pas ajouter plus de dix photos")]
     private Collection $images;
+
+    #[ORM\OneToOne(mappedBy: 'trick', targetEntity: VideoYT::class, orphanRemoval: true, cascade:["persist"])]
+    private ?VideoYT $videoYT = null;
 
     public function __construct()
     {
@@ -216,6 +220,23 @@ class Trick
                 $image->setTrick(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getVideoYT(): ?VideoYT
+    {
+        return $this->videoYT;
+    }
+
+    public function setVideoYT(VideoYT $videoYT): self
+    {
+        // set the owning side of the relation if necessary
+        if ($videoYT->getTrick() !== $this) {
+            $videoYT->setTrick($this);
+        }
+
+        $this->videoYT = $videoYT;
 
         return $this;
     }
