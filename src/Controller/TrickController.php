@@ -11,6 +11,7 @@ use App\Form\CommentType;
 use App\Repository\TrickRepository;
 use App\Repository\CommentRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -67,33 +68,7 @@ class TrickController extends AbstractController
             $trick->setAuthor($this->getUser());
             $trick->setSlug($this->slugger->slug($trick->getName()));
 
-            // On récupère les images saisies dans le formulaire :
-            $images = $form->get('image')->getData();
-
-            foreach ($images as $image) {
-                // On renome de fichier image qu'on stocke en webp :
-                $imageFileName = md5(uniqid()) . '.webp';
-                // On copie physiquement le fichier dans le dossier uploads :
-                $image->move($this->getParameter('images_directory'), $imageFileName);
-                // On stocke le nom de l'image dans la BDD : On va créer une nouvelle instance de l'entité image dans laquelle on faire un setName() puis on va ajouter cette instance dans l'entité Trick.
-                $img = new Image();
-                $img->setName($imageFileName);
-                $trick->addImage($img);
-            }
-
-            // On récupère la vidéo :
-            $videoUrl = $form->get('videoUrl')->getData();
-            if (strpos($videoUrl, 'v=') !== false) {
-                $start = strpos($videoUrl, 'v=') + 2;
-                $videoId = substr($videoUrl, $start);
-                
-                // On enregistre la vidéo
-                $vid = new VideoYT();
-                $vid->setYtVideoId($videoId);
-                $trick->setVideoYT($vid);
-            } else {
-                $this->addFlash('error', 'URL de vidéo YouTube non valide.');
-            }
+            $this->importImagesAndVideo($trick, $form);
 
             $em->persist($trick);
             $em->flush();
@@ -152,33 +127,8 @@ class TrickController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            // On récupère les images saisies dans le formulaire :
-            $images = $form->get('image')->getData();
 
-            foreach ($images as $image) {
-                // On renome de fichier image qu'on stocke en webp :
-                $imageFileName = md5(uniqid()) . '.webp';
-                // On copie physiquement le fichier dans le dossier uploads :
-                $image->move($this->getParameter('images_directory'), $imageFileName);
-                // On stocke le nom de l'image dans la BDD : On va créer une nouvelle instance de l'entité image dans laquelle on faire un setName() puis on va ajouter cette instance dans l'entité Trick.
-                $img = new Image();
-                $img->setName($imageFileName);
-                $trick->addImage($img);
-            }
-
-            // On récupère la vidéo :
-            $videoUrl = $form->get('videoUrl')->getData();
-            if (strpos($videoUrl, 'v=') !== false) {
-                $start = strpos($videoUrl, 'v=') + 2;
-                $videoId = substr($videoUrl, $start);
-                
-                // On enregistre la vidéo
-                $vid = new VideoYT();
-                $vid->setYtVideoId($videoId);
-                $trick->setVideoYT($vid);
-            } else {
-                $this->addFlash('error', 'URL de vidéo YouTube non valide.');
-            }
+            $this->importImagesAndVideo($trick, $form);
 
             $trick = $form->getData();
             $trick->setUpdatedDate(new \DateTime());
@@ -302,5 +252,44 @@ class TrickController extends AbstractController
         }
 
         return new JsonResponse(['error' => 'Token invalide'], 400);
+    }
+
+
+    private function importImagesAndVideo(Trick $trick, FormInterface $form): void
+    {
+        // On récupère les images saisies dans le formulaire :
+        $images = $form->get('image')->getData();
+        if (count($trick->getImages()) + count($images) > 3) {
+            $this->addFlash('warning', 'Vous ne pouvez pas ajouter plus de 3 images.');
+        } else {
+            foreach ($images as $image) {
+                if (filesize($image) > 512000) {
+                    $this->addFlash('warning', 'Vous ne pouvez pas télécharger une image de plus de 500 ko.'); 
+                } else {
+                // On renome de fichier image qu'on stocke en webp :
+                $imageFileName = md5(uniqid()) . '.webp';
+                // On copie physiquement le fichier dans le dossier uploads :
+                $image->move($this->getParameter('images_directory'), $imageFileName);
+                // On stocke le nom de l'image dans la BDD : On va créer une nouvelle instance de l'entité image dans laquelle on faire un setName() puis on va ajouter cette instance dans l'entité Trick.
+                $img = new Image();
+                $img->setName($imageFileName);
+                $trick->addImage($img);
+                }
+            }
+        }
+        // On récupère la vidéo saisie dans le formulaire:
+        $videoUrl = $form->get('videoUrl')->getData();
+        if (!empty($videoUrl)) {
+            if (strpos($videoUrl, 'v=') !== false) {
+                $start = strpos($videoUrl, 'v=') + 2;
+                $videoId = substr($videoUrl, $start);
+                // On enregistre la vidéo
+                $vid = new VideoYT();
+                $vid->setYtVideoId($videoId);
+                $trick->setVideoYT($vid);
+            } else {
+                $this->addFlash('warning', 'URL de vidéo YouTube non valide.');
+            }
+        }
     }
 }

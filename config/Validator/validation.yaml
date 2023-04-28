@@ -1,0 +1,2 @@
+App\Validator\Constraints\MaxImages:
+    maxImages: 3

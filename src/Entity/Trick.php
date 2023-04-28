@@ -47,7 +47,6 @@ class Trick
     private Collection $categories;
 
     #[ORM\OneToMany(mappedBy: 'trick', targetEntity: Image::class, orphanRemoval: true, cascade: ['persist'])]
-    #[Assert\Count(max: 10, maxMessage: "Vous ne pouvez pas ajouter plus de dix photos")]
     private Collection $images;
 
     #[ORM\OneToOne(mappedBy: 'trick', targetEntity: VideoYT::class, orphanRemoval: true, cascade:["persist"])]

@@ -8,11 +8,9 @@ use Doctrine\ORM\EntityRepository;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-use Symfony\Component\Validator\Constraints\Count;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 
 class TrickType extends AbstractType
 {
@@ -47,19 +45,12 @@ class TrickType extends AbstractType
                 'multiple' => true,
                 'required' => false,
                 'mapped' => false, // c une relation, ce champ n'est pas rempli dans la table Trick (il est dans la table Image) donc on doit mettre : mapped à false
-                'constraints' => [
-                    new Count([
-                        'max' => 10,
-                        'maxMessage' => 'Vous ne pouvez pas ajouter plus de dix photos'
-                    ])
-                ]
             ])
             ->add('videoUrl', TextType::class, [
                 'label' => false,
                 'required' => false,
                 'mapped' => false, // parce que ce champ n'existe pas dans la table trick
-            ])
-            ;
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

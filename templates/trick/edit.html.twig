@@ -24,16 +24,19 @@
 	{{ form_row(formTrick.image) }}
 
 	<p>Vidéos</p>
-		{% if trick.videoYT %}
-			<div>
-				<iframe width="150" height="84" src="https://www.youtube.com/embed/{{ trick.videoYT.ytVideoId }}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-				<a href="{{ path('trick_delete_video', {id: trick.videoYT.id}) }}" video-link-delete data-token="{{ csrf_token('delete' ~ trick.videoYT.id) }}">Supprimer</a>
-			</div>
-		{% endif %}
-	{{ form_row(formTrick.videoUrl, {'attr' : {'placeholder' : "Saisissez l'Url d'une video YouTube" }}) }}
+	{% if trick.videoYT %}
+		<div>
+			<iframe width="150" height="84" src="https://www.youtube.com/embed/{{ trick.videoYT.ytVideoId }}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+			<a href="{{ path('trick_delete_video', {id: trick.videoYT.id}) }}" video-link-delete data-token="{{ csrf_token('delete' ~ trick.videoYT.id) }}">Supprimer</a>
+		</div>
+		{{ form_row(formTrick.videoUrl, {'attr': {'hidden': 'hidden'}}) }}
+	{% else %}
+		{{ form_row(formTrick.videoUrl, {'attr' : {'placeholder' : "Saisissez l'Url d'une video YouTube" }}) }}
+	{% endif %}
 
 	<button type="submit" class="btn btn-success">Modifier le Trick</button>
 	{{ form_end(formTrick) }}
+
 
 
 	{% block javascrits %}
