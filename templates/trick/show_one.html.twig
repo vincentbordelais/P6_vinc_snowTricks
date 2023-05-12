@@ -12,6 +12,9 @@
 			{{ trick.createdDate| date('d/m/Y') }}
 			à
 			{{ trick.createdDate | date('h:m') }}
+			par
+			{{ trick.author.username }}
+			<img src="{{trick.author.avatar}}" class="rounded-circle" height="24" width="24"/>
 		</div>
 		<div>
 			{% if trick.categories %}
@@ -112,13 +115,15 @@
 						var dateFormatted = date.toLocaleDateString() + ' à '
 							+ date.toLocaleTimeString("fr-FR", {hour: '2-digit', minute:'2-digit'});
 
-						// console.log(data.commentsData[i].user.picture);
+						// console.log(data.commentsData[i].user.avatar);
 
 						// Création de l'élément image
-                        var picture = $("<img>")
-                            .attr("public", "/uploads/pictures/" + data.commentsData[i].user.picture)
-                            .attr("alt", "Photo de " + data.commentsData[i].user.username)
-                            .addClass("user-picture");
+						var avatar = $("<img>")
+						.attr("src", data.commentsData[i].user.avatar)
+						.attr("height", "24")
+						.attr("width", "24")
+						.addClass("rounded-circle")
+						.attr("alt", "Avatar de " + data.commentsData[i].user.username);
 
                         // Création de l'élément username
                         var username = $("<span>")
@@ -128,14 +133,10 @@
                         // Création de l'élément commentaire
                         var com = $("<p>")
                             .append("Ecrit le " + dateFormatted + " par ")
-                            .append(picture)
                             .append(username)
+							.append(avatar)
                             .append("<br>")
                             .append(data.commentsData[i].comment);
-
-						// var com = $("<p>Ecrit le " + dateFormatted
-						// 	+ " par " + data.commentsData[i].user.username
-						// 	+ "</p>" + "<p>" + data.commentsData[i].comment + "</p>");
 
 						// Ajout du bouton "supprimer" si Admin :
 						if (isAdmin) {

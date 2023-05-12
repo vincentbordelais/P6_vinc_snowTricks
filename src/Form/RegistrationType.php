@@ -6,6 +6,7 @@ use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 
@@ -26,7 +27,12 @@ class RegistrationType extends AbstractType
             ->add('first_name', null, ['label' => 'Nom'])
             ->add('last_name', null, ['label' => 'Prénom'])
             ->add('username', null, ['label' => 'Pseudonyme'])
-            ->add('picture', null, ['label' => 'Image']);
+            ->add('avatar',
+                UrlType::class, [
+                    'label' => 'URL de votre avatar',
+                    'attr' => ['placeholder' => 'Saisissez l\'URL de votre avatar'],
+                    'required' => false
+                ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

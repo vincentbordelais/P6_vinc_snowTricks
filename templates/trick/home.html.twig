@@ -1,9 +1,68 @@
 {% extends 'base.html.twig' %}
-
-{% block title %}snowTRICKS
-{% endblock %}
+{% block title %}Liste de Tricks{% endblock %}
 
 {% block body %}
-	<h1>
-		Hello snowTRICKS</h1>
+	<div class="row mt-4">
+		{% for trick in tricksPagination.tricksPerPage %}
+			<article class="col-3 mb-3 text-center" style="height: 620px;">
+				<div class="border border-dark rounded p-2 h-100">
+					<h2 class="text-truncate" style="font-size: 1.5rem; line-height: 1.2;">
+						{{ trick.name }}
+					</h2>
+
+					<p style="color: #b4bcc2; margin-bottom: 16px;">
+						<span style="margin-bottom: 1.5em;"><i class="fa fa-calendar"></i> {{ trick.createdDate| date('d/m/Y') }} à {{ trick.createdDate | date('h:m') }}</span>
+						<span style="margin-bottom: 1.5em;"><img src="{{trick.author.avatar}}" class="rounded-circle" height="24" width="24"/> {{ trick.author.username }}</span>
+					</p>
+
+					<div class="content text-truncate lire-suite">
+						<p>{{ trick.description | raw }}</p>
+						<a href="{{ path('trick_showOne', {'trickSlug':trick.slug}) }}" class="btn btn-primary btn-custom">Lire la suite</a>
+					</div>
+
+					<div style="color: #b4bcc2; margin-bottom: 10px;">
+						{{ trick.comments.count() }}
+						{% if trick.comments.count() > 1 %} commentaires
+						{% else %} commentaire
+						{% endif %}
+					</div>
+
+					<div style="margin-bottom: 16px;">
+						{% if trick.categories %}
+							{% for category in trick.categories %}
+								<a href="{{ path('trick_showByCategory', {'categorySlug': category.slug}) }}" style="margin-right: 5px;">
+								<i class="fa fa-tag"></i> {{ category.name }}
+								</a>
+							{% endfor %}
+						{% endif %}
+					</div>
+
+					<div style="width:120px; margin: 0 auto;">
+						{% for image in trick.getImages() %} {# ou: in trick.images #}
+							<img src="{{ asset('/uploads/images/' ~ image.name) }}" alt="Image" class="img-fluid">
+						{% endfor %}
+
+						{% if trick.videoYT %}
+							{# <div class="embed-responsive embed-responsive-16by9 video-responsive">
+								<iframe width="150" height="84.38" src="https://www.youtube.com/embed/{{ trick.videoYT.ytVideoId }}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+							</div> #}
+							<div class="video-custom">
+								<iframe class="img-fluid" width="150" src="https://www.youtube.com/embed/{{ trick.videoYT.ytVideoId }}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+							</div>
+						{% endif %}
+					</div>			
+				</div>
+			</article>
+		{% endfor %}
+
+		{% set path = 'trick_home' %}
+		{% set param1 = {'page':currentPage-1} %}
+		{% set param2 = {'page':currentPage} %}
+		{% set param3 = {'page':currentPage+1} %}
+		{% set totalOfPages = tricksPagination.totalOfPages %}
+		{% set currentPage = currentPage %}
+		<div class="">
+			{% include "_partials/_pagination.html.twig" %}
+		</div>
+	</div>
 {% endblock %}

@@ -61,7 +61,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 255)]
     #[Groups("comment:read")]
-    private ?string $picture = null;
+    private ?string $avatar = null;
 
     #[ORM\OneToMany(mappedBy: 'author', targetEntity: Trick::class)]
     #[Groups("comment:read")]
@@ -194,14 +194,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getPicture(): ?string
+    public function getAvatar(): ?string
     {
-        return $this->picture;
+        return $this->avatar;
     }
 
-    public function setPicture(string $picture): self
+    public function setAvatar(string $avatar): self
     {
-        $this->picture = $picture;
+        $this->avatar = $avatar;
 
         return $this;
     }

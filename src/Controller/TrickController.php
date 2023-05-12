@@ -30,21 +30,15 @@ class TrickController extends AbstractController
     }
 
     #[Route('/', name: 'trick_home')]
-    public function home(): Response
-    {
-        return $this->render('trick/home.html.twig');
-    }
-
-    #[Route('/tricks', name: 'trick_showAll')]
-    public function showAllTricks(TrickRepository $trickRepository, Request $request): Response
+    public function home(TrickRepository $trickRepository, Request $request): Response
     {
         // On va chercher le numéro de page dans l'url :
         $currentPage = $request->query->getInt('page', 1);
 
         // On va chercher le tableau (liste des tricks + total de pages + limit) :
-        $tricksPagination = $trickRepository->findTricksPaginated($currentPage, 3); // limit = 3
+        $tricksPagination = $trickRepository->findTricksPaginated($currentPage, 4); // limit = 4
 
-        return $this->render('trick/show_all.html.twig', [
+        return $this->render('trick/home.html.twig', [
             'tricksPagination' => $tricksPagination,
             'currentPage' => $currentPage,
         ]);
@@ -75,7 +69,7 @@ class TrickController extends AbstractController
 
             $this->addFlash('success', "Votre trick a été enregistré");
 
-            return $this->redirectToRoute('trick_showAll');
+            return $this->redirectToRoute('trick_home');
         }
 
         return $this->render('trick/new.html.twig', [
@@ -135,7 +129,7 @@ class TrickController extends AbstractController
             // $trick->setCategory() Il n'y a pas de setCategory
             $em->persist($trick);
             $em->flush();
-            return $this->redirectToRoute('trick_showAll');
+            return $this->redirectToRoute('trick_home');
         }
 
         return $this->render('trick/edit.html.twig', [
@@ -168,7 +162,7 @@ class TrickController extends AbstractController
         $em->remove($trick);
         $em->flush();
 
-        return $this->redirectToRoute('trick_showAll');
+        return $this->redirectToRoute('trick_home');
     }
 
 

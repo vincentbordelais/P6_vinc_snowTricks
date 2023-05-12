@@ -47,6 +47,16 @@ class RegistrationController extends AbstractController
             $expirationDate = $now->add(new DateInterval('PT'. 30 .'S'));
             $user->setLoginTokenExpiresAt($expirationDate);
             $user->setRoles(['ROLE_USER']);
+
+            // On récupère l'avatar saisie dans le formulaire:
+            $avatarUrl = $form->get('avatar')->getData();
+            if (!empty($avatarUrl) && strpos($avatarUrl, 'https://api.dicebear.com/6.x/adventurer-neutral/svg?seed=') !== false) {
+                $user->setAvatar($avatarUrl);
+            } else {
+                $this->addFlash('warning', 'Veuillez donner un URL valide pour votre avatar.');
+                return $this->redirectToRoute('registration_register');
+            }
+
             $this->entityManager->persist($user);
             $this->entityManager->flush();
 
