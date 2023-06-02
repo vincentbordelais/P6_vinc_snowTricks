@@ -48,12 +48,12 @@
 
 	<section class="trick">
 		<div class="content">
-			{% if is_granted("TRICK_EDIT", trick) %}
+			{% if is_granted("TRICK_EDIT", trick) %} {# vérifie les autorisations avec le voter #}
 				<a href="{{ path('trick_edit', {'slug':trick.slug}) }}" class="btn btn-warning">
 					<i class="fas fa-edit"></i>
 				</a>
 			{% endif %}
-			{% if is_granted("TRICK_DELETE", trick) %}
+			{% if is_granted("TRICK_DELETE", trick) %} {# vérifie les autorisations avec le voter #}
 				<a href="{{ path('trick_delete', {'slug':trick.slug}) }}" class="btn btn-danger" onclick="return confirm('Voulez-vous supprimer ce Trick ?')">
 					<i class="fas fa-trash-alt"></i>
 				</a>

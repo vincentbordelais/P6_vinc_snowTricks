@@ -2,10 +2,11 @@
 {% block title %}Liste de Catégories{% endblock %}
 
 {% block body %}
+	<h4>Liste des catégories</h4>
 	<section class="category">
 		{% for category in categories %}
 			<article>
-				<h4>{{ category.name }}</h4>
+				<h5>{{ category.name }}</h5>
 				<div class="content">
 					<p>{{ category.description | raw }}</p>
 					<a href="{{ path('category_showOne', {'slug':category.slug}) }}" class="btn btn-primary">Lire la suite</a>

@@ -86,6 +86,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->tricks = new ArrayCollection();
         $this->comments = new ArrayCollection();
+        // $this->roles = ['ROLE_USER'];
     }
 
     public function getId(): ?int
@@ -150,7 +151,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @see UserInterface
+     * @return void
      */
     public function eraseCredentials()
     {

@@ -1,12 +1,12 @@
 {% extends "base.html.twig" %}
-{% block title %}Page non trouvée{% endblock %}
+{% block title %}{{ pageTitle }}{% endblock %}
 
 {% block body %}
     <main class="container">
         <section class="row">
             <div class="col-12">
-                <h1>Page non trouvée</h1>
-                <p>La page que vous recherchez n'existe pas.</p>            
+                <h1>{{ pageTitle }}</h1>
+                <p>{{ errorMessage }}</p>            
             </div>
         </section>
     </main>

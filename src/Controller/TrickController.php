@@ -114,7 +114,7 @@ class TrickController extends AbstractController
     {
         // D'abord vérifier que l'utilisateur est authentifié
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        // Et s'assurer que l'utilisateur est l'auteur :
+        // Et vérifier si l'utilisateur a le droit de modifier un Trick :
         $this->denyAccessUnlessGranted("TRICK_EDIT", $trick); // ok
 
         $form = $this->createForm(TrickType::class, $trick);
@@ -148,6 +148,7 @@ class TrickController extends AbstractController
 
         // On supprime physiquement les images :
         $images = $trick->getImages();
+        // var_dump($images);
         if($images){
             foreach ($images as $image) {
                 // on récupère le chemin :
@@ -159,9 +160,10 @@ class TrickController extends AbstractController
                 }
             }
         }
+        // var_dump($trick);
         $em->remove($trick);
         $em->flush();
-
+        // var_dump($trick);
         return $this->redirectToRoute('trick_home');
     }
 

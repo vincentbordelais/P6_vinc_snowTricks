@@ -13,7 +13,7 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\Security\Core\Annotation\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-#[IsGranted('ROLE_ADMIN')]
+// #[IsGranted('ROLE_ADMIN')]
 class CategoryController extends AbstractController
 {
     private $slugger;
@@ -74,6 +74,7 @@ class CategoryController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $category = $form->getData();
+            // dump($category);
             $category->setSlug($this->slugger->slug($category->getName()));
             // $category->setTrick(); Il n'y a pas de setTrick(), 
             $em->persist($category);
@@ -90,7 +91,9 @@ class CategoryController extends AbstractController
     #[Route('/categorie/{slug}/supprimer', name: 'category_delete')]
     public function deleteCategory(Category $category, EntityManagerInterface $em): Response
     {
-        $categoryName = $category->getName();
+        // var_dump($category->getSlug());
+        // var_dump($category->getId());
+        // var_dump($category->getName());
         $em->remove($category);
         $em->flush();
 
