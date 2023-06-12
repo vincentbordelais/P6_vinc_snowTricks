@@ -59,16 +59,25 @@ class CategoryController extends AbstractController
     }
 
     #[Route('/categorie/{slug}', name: 'category_showOne')]
-    public function showOneCategory(Category $category): Response
+    public function showOneCategory(string $slug, EntityManagerInterface $em): Response
     {
+        $category = $em->getRepository(Category::class)->findOneBy(['slug' => $slug]);
+        if (!$category) {
+            throw $this->createNotFoundException('No category found for slug '.$slug);
+        }
         return $this->render('category/show_one.html.twig', [
             'category' => $category
         ]);
     }
 
     #[Route('/categorie/{slug}/modifier', name: 'category_edit')]
-    public function editCategory(Category $category, Request $request, EntityManagerInterface $em): Response
+    public function editCategory(string $slug, Request $request, EntityManagerInterface $em): Response
     {
+        $category = $em->getRepository(Category::class)->findOneBy(['slug' => $slug]);
+        if (!$category) {
+            throw $this->createNotFoundException('No category found for slug '.$slug);
+        }
+
         $form = $this->createForm(CategoryType::class, $category);
 
         $form->handleRequest($request);
@@ -89,11 +98,13 @@ class CategoryController extends AbstractController
     }
 
     #[Route('/categorie/{slug}/supprimer', name: 'category_delete')]
-    public function deleteCategory(Category $category, EntityManagerInterface $em): Response
+    public function deleteCategory(string $slug, EntityManagerInterface $em): Response
     {
-        // var_dump($category->getSlug());
-        // var_dump($category->getId());
-        // var_dump($category->getName());
+        $category = $em->getRepository(Category::class)->findOneBy(['slug' => $slug]);
+        if (!$category) {
+            throw $this->createNotFoundException('No category found for slug '.$slug);
+        }
+        
         $em->remove($category);
         $em->flush();
 

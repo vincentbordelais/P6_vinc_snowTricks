@@ -11,11 +11,13 @@
 		</div>
 	</section>
 {# {% dump(category.slug) %} #}
-	<a href="{{ path('category_edit', {'slug':category.slug}) }}" class="btn btn-warning">
-		<i class="fas fa-edit"></i>
-	</a>
-	<a href="{{ path('category_delete', {'slug':category.slug}) }}" class="btn btn-danger">
-		<i class="fas fa-trash-alt"></i>
-	</a>
+	{% if is_granted('ROLE_ADMIN') %}
+		<a href="{{ path('category_edit', {'slug':category.slug}) }}" class="btn btn-warning">
+			<i class="fas fa-edit"></i>
+		</a>
+		<a href="{{ path('category_delete', {'slug':category.slug}) }}" class="btn btn-danger">
+			<i class="fas fa-trash-alt"></i>
+		</a>
+	{% endif %}
 
 {% endblock %}

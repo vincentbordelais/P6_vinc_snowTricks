@@ -7,7 +7,6 @@
 			<div class="col-3 mb-3">
 				<div class="card h-100">
 					<div class="card-body">
-
 						<h2 class="card-title text-truncate" style="font-size: 1.5rem; line-height: 1.2;">
 							{{ trick.name }}
 						</h2>
@@ -18,7 +17,7 @@
 							{# <img src="{{ asset('/path/to/placeholder-image.jpg') }}" alt="Placeholder Image" class="card-img-top"> #}
 						{% endif %}
 
-						<p style="color: #b4bcc2; margin-bottom: 16px;">
+						<p style="color: #8c959e; margin-bottom: 16px;">
 							<span style="margin-bottom: 1.5em;"><i class="fa fa-calendar"></i> {{ trick.createdDate| date('d/m/Y') }} à {{ trick.createdDate | date('h:m') }}</span>
 							<span style="margin-bottom: 1.5em;"><img src="{{trick.author.avatar}}" class="rounded-circle" height="24" width="24"/> {{ trick.author.username }}</span>
 						</p>
@@ -26,7 +25,7 @@
 						<div style="margin-bottom: 16px;">
 							{% if trick.categories %}
 								{% for category in trick.categories %}
-									<a href="{{ path('trick_showByCategory', {'categorySlug': category.slug}) }}" style="margin-right: 5px;">
+									<a href="{{ path('trick_showByCategory', {'categorySlug': category.slug}) }}" title="Voir les tricks de cette catégorie" style="margin-right: 5px;">
 										<i class="fa fa-tag"></i> {{ category.name }}
 									</a>
 								{% endfor %}
@@ -35,10 +34,10 @@
 
 						<div class="card-text text-truncate lire-suite">
 							<p>{{ trick.description | raw }}</p>
-							<a href="{{ path('trick_showOne', {'trickSlug':trick.slug}) }}" class="btn btn-primary btn-custom">Lire la suite</a>
+							<a href="{{ path('trick_showOne', {'trickSlug':trick.slug}) }}" class="btn btn-primary btn-custom">Voir ce Trick</a>
 						</div>
 
-						<div style="color: #b4bcc2; margin-bottom: 10px;">
+						<div style="color: #8c959e; margin-bottom: 10px;">
 							{{ trick.comments.count() }}
 							{% if trick.comments.count() > 1 %} commentaires
 							{% else %} commentaire

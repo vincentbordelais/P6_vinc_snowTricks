@@ -4,14 +4,10 @@
 
 {% block body %}
 	<section class="trick">
-		<h2 class="metadata">
-			{{ trick.name }}
-		</h2>
-		<div>
-			Créé le
-			{{ trick.createdDate| date('d/m/Y') }}
-			à
-			{{ trick.createdDate | date('h:m') }}
+		<h2 class="metadata">{{ trick.name }}</h2>
+		<div style="color: #8c959e;">
+			Créé le {{ trick.createdDate| date('d/m/Y') }} à {{ trick.createdDate | date('h:m') }}
+			puis modifier le {{ trick.updatedDate| date('d/m/Y') }} à {{ trick.updatedDate | date('h:m') }}
 			par
 			{{ trick.author.username }}
 			<img src="{{trick.author.avatar}}" class="rounded-circle" height="24" width="24"/>
@@ -27,23 +23,27 @@
 		</div>
 		<article>
 			<div class="content">
-				<p>
-					{{ trick.description }}
-				</p>
+				<p>{{ trick.description }}</p>
 			</div>
 		</article>
-		
-		{% for image in trick.getImages() %} {# ou: in trick.images #}
-			<div>
-				<img src="{{ asset('/uploads/images/' ~ image.name) }}" alt="Image" width="150">
-			</div>
-		{% endfor %}
 
-		{% if trick.videoYT %}
-			<div>
-				<iframe width="150" height="84" src="https://www.youtube.com/embed/{{ trick.videoYT.ytVideoId }}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-			</div>
-		{% endif %}
+		<div class="row mt-4">
+			{% for image in trick.getImages() %} {# ou: in trick.images #}
+				<div class="col-md-3 col-sm-6 mb-3">
+					<a href="{{ asset('/uploads/images/' ~ image.name) }}" target="_blank">
+            			<img src="{{ asset('/uploads/images/' ~ image.name) }}" alt="Image" class="img-fluid">
+        			</a>
+				</div>
+			{% endfor %}
+
+			{% if trick.videoYT %}
+				<div class="col-md-3 col-sm-6 mb-3">
+					<div class="embed-responsive embed-responsive-16by9">
+						<iframe src="https://www.youtube.com/embed/{{ trick.videoYT.ytVideoId }}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+					</div>
+				</div>
+			{% endif %}
+		</div>
 	</section>
 
 	<section class="trick">
@@ -73,6 +73,7 @@
 			{{ form_end(formComment) }}
 		{% endif %}
 	</section>
+	<br>
 
 	<section>
 		<div id="js-comments"></div>
@@ -109,7 +110,7 @@
 				dataType: 'json',				
 				success: function (data) {
 					// On boucle une page :
-					for (var i = 1; i <= data.commentsData.length; i++) {
+					for (var i = 0; i <= data.commentsData.length; i++) {
 						// data.commentsData.length = nombre de comments par page
 						var date = new Date(data.commentsData[i].created_date);
 						var dateFormatted = date.toLocaleDateString() + ' à '
@@ -117,7 +118,7 @@
 
 						// console.log(data.commentsData[i].user.avatar);
 
-						// Création de l'élément image
+						// Création de l'élément avatar
 						var avatar = $("<img>")
 						.attr("src", data.commentsData[i].user.avatar)
 						.attr("height", "24")

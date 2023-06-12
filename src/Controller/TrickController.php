@@ -110,11 +110,16 @@ class TrickController extends AbstractController
     }
 
     #[Route('/trick/{slug}/modifier', name: 'trick_edit')]
-    public function editTrick(Trick $trick, Request $request, EntityManagerInterface $em): Response
+    public function editTrick(string $slug, Request $request, EntityManagerInterface $em): Response
     {
+        $trick = $em->getRepository(Trick::class)->findOneBy(['slug' => $slug]);
+        if (!$trick) {
+            throw $this->createNotFoundException('No trick found for slug '.$slug);
+        }
+
         // D'abord vérifier que l'utilisateur est authentifié
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        // Et vérifier si l'utilisateur a le droit de modifier un Trick :
+        // Vérifie les autorisations avec le voter (a le droit de modifier s'il est l'auteur)
         $this->denyAccessUnlessGranted("TRICK_EDIT", $trick); // ok
 
         $form = $this->createForm(TrickType::class, $trick);
@@ -139,11 +144,16 @@ class TrickController extends AbstractController
     }
 
     #[Route('/trick/{slug}/supprimer', name: 'trick_delete')]
-    public function deleteTrick(Trick $trick, EntityManagerInterface $em): Response
+    public function deleteTrick(string $slug, EntityManagerInterface $em): Response
     {
+        $trick = $em->getRepository(Trick::class)->findOneBy(['slug' => $slug]);
+        if (!$trick) {
+            throw $this->createNotFoundException('No trick found for slug '.$slug);
+        }
+
         // D'abord vérifier que l'utilisateur est authentifié
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        // Et s'assurer que l'utilisateur est l'auteur :
+        // Vérifie les autorisations avec le voter (ok s'il est l'auteur)
         $this->denyAccessUnlessGranted("TRICK_DELETE", $trick);
 
         // On supprime physiquement les images :
@@ -160,10 +170,8 @@ class TrickController extends AbstractController
                 }
             }
         }
-        // var_dump($trick);
         $em->remove($trick);
         $em->flush();
-        // var_dump($trick);
         return $this->redirectToRoute('trick_home');
     }
 
@@ -200,8 +208,13 @@ class TrickController extends AbstractController
     }
 
     #[Route('/tricks/suppression_image/{id}', name: 'trick_delete_image', methods: ['DELETE'])]
-    public function deleteImage(Image $image, Request $request, EntityManagerInterface $em): JsonResponse
+    public function deleteImage($id, Request $request, EntityManagerInterface $em): JsonResponse
     {
+        $image = $em->getRepository(Image::class)->findOneBy(['id' => $id]);
+        if (!$image) {
+            throw $this->createNotFoundException('No image found for id '.$id);
+        }
+
         // On récupère le contenu de la requête json sous forme de tableau
         $data = json_decode($request->getContent(), true);
 
@@ -231,8 +244,13 @@ class TrickController extends AbstractController
     }
 
     #[Route('/tricks/suppression_video/{id}', name: 'trick_delete_video', methods: ['DELETE'])]
-    public function deleteVideo(VideoYT $videoYT, Request $request, EntityManagerInterface $em): JsonResponse
+    public function deleteVideo($id, Request $request, EntityManagerInterface $em): JsonResponse
     {
+        $videoYT = $em->getRepository(videoYT::class)->findOneBy(['id' => $id]);
+        if (!$videoYT) {
+            throw $this->createNotFoundException('No image found for id '.$id);
+        }
+
         $data = json_decode($request->getContent(), true);
 
         if (!$videoYT) {
