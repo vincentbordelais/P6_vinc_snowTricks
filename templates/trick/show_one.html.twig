@@ -4,7 +4,7 @@
 
 {% block body %}
 	<section class="trick">
-		<h2 class="metadata">{{ trick.name }}</h2>
+		<h2 class="metadata" style="margin: 30px;">{{ trick.name }}</h2>
 		<div style="color: #8c959e;">
 			Créé le {{ trick.createdDate| date('d/m/Y') }} à {{ trick.createdDate | date('h:m') }}
 			puis modifier le {{ trick.updatedDate| date('d/m/Y') }} à {{ trick.updatedDate | date('h:m') }}
@@ -15,9 +15,7 @@
 		<div>
 			{% if trick.categories %}
 				{% for category in trick.categories %}
-					<a href="{{ path('trick_showByCategory', {'categorySlug': category.slug}) }}">
-						{{ category.name }}
-					</a>
+					<a href="{{ path('trick_showByCategory', {'categorySlug': category.slug}) }}" title="Voir les tricks de cette catégorie">{{ category.name }}</a>
 				{% endfor %}
 			{% endif %}
 		</div>
@@ -39,7 +37,7 @@
 			{% if trick.videoYT %}
 				<div class="col-md-3 col-sm-6 mb-3">
 					<div class="embed-responsive embed-responsive-16by9">
-						<iframe src="https://www.youtube.com/embed/{{ trick.videoYT.ytVideoId }}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+						<iframe src="https://www.youtube.com/embed/{{ trick.videoYT.ytVideoId }}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;" allowfullscreen></iframe>
 					</div>
 				</div>
 			{% endif %}
@@ -110,51 +108,53 @@
 				dataType: 'json',				
 				success: function (data) {
 					// On boucle une page :
-					for (var i = 0; i <= data.commentsData.length; i++) {
-						// data.commentsData.length = nombre de comments par page
-						var date = new Date(data.commentsData[i].created_date);
-						var dateFormatted = date.toLocaleDateString() + ' à '
-							+ date.toLocaleTimeString("fr-FR", {hour: '2-digit', minute:'2-digit'});
+					if (typeof data.commentsData !== 'undefined') {
+						for (var i = 0; i < data.commentsData.length; i++) {
+							// data.commentsData.length = nombre de comments par page
+							var date = new Date(data.commentsData[i].created_date);
+							var dateFormatted = date.toLocaleDateString() + ' à '
+								+ date.toLocaleTimeString("fr-FR", {hour: '2-digit', minute:'2-digit'});
 
-						// console.log(data.commentsData[i].user.avatar);
+							// console.log(data.commentsData[i].user.avatar);
 
-						// Création de l'élément avatar
-						var avatar = $("<img>")
-						.attr("src", data.commentsData[i].user.avatar)
-						.attr("height", "24")
-						.attr("width", "24")
-						.addClass("rounded-circle")
-						.attr("alt", "Avatar de " + data.commentsData[i].user.username);
+							// Création de l'élément avatar
+							var avatar = $("<img>")
+							.attr("src", data.commentsData[i].user.avatar)
+							.attr("height", "24")
+							.attr("width", "24")
+							.addClass("rounded-circle")
+							.attr("alt", "Avatar de " + data.commentsData[i].user.username);
 
-                        // Création de l'élément username
-                        var username = $("<span>")
-                            .text(data.commentsData[i].user.username)
-                            .addClass("username");
+							// Création de l'élément username
+							var username = $("<span>")
+								.text(data.commentsData[i].user.username)
+								.addClass("username");
 
-                        // Création de l'élément commentaire
-                        var com = $("<p>")
-                            .append("Ecrit le " + dateFormatted + " par ")
-                            .append(username)
-							.append(avatar)
-                            .append("<br>")
-                            .append(data.commentsData[i].comment);
+							// Création de l'élément commentaire
+							var com = $("<p>")
+								.append("Ecrit le " + dateFormatted + " par ")
+								.append(username)
+								.append(avatar)
+								.append("<br>")
+								.append(data.commentsData[i].comment);
 
-						// Ajout du bouton "supprimer" si Admin :
-						if (isAdmin) {
-							// #[Route('/commentaires/{comment_id}/{trick_slug}/supprimer', name: 'comment_delete')]
-							var deleteBtn = $("<a>")
-								.attr("href", "/commentaires/" + data.commentsData[i].id + "/" + "{{ trickSlug }}" + "/supprimer")
-								.addClass("btn btn-danger")
-								.text("Supprimer");
+							// Ajout du bouton "supprimer" si Admin :
+							if (isAdmin) {
+								// #[Route('/commentaires/{comment_id}/{trick_slug}/supprimer', name: 'comment_delete')]
+								var deleteBtn = $("<a>")
+									.attr("href", "/commentaires/" + data.commentsData[i].id + "/" + "{{ trickSlug }}" + "/supprimer")
+									.addClass("btn btn-danger")
+									.text("Supprimer");
 
-							$("#js-comments").append(com);
-							$("#js-comments").append(deleteBtn);
-						} else {
-							$("#js-comments").append(com);
+								$("#js-comments").append(com);
+								$("#js-comments").append(deleteBtn);
+							} else {
+								$("#js-comments").append(com);
+							}
 						}
-					}
-					if (page >= data.totalNumberOfPages) {
-						morePages = false;
+						if (page >= data.totalNumberOfPages) {
+							morePages = false;
+						}
 					}
 				},
 				error: function(xhr, status, error) {

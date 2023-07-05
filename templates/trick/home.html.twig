@@ -4,12 +4,10 @@
 {% block body %}
 	<div class="row mt-4">
 		{% for trick in tricksPagination.tricksPerPage %}
-			<div class="col-3 mb-3">
+			<div class="col-3 mb-3" style="margin-top: 84px;">
 				<div class="card h-100">
 					<div class="card-body">
-						<h2 class="card-title text-truncate" style="font-size: 1.5rem; line-height: 1.2;">
-							{{ trick.name }}
-						</h2>
+						<h2 class="card-title text-truncate" style="font-size: 1.5rem; line-height: 1.2; margin-bottom: 10px;">{{ trick.name }}</h2>
 
 						{% if trick.getImages() is not empty %}
 							<img src="{{ asset('/uploads/images/' ~ trick.getImages() | first.name) }}" alt="Image" class="card-img-top">
@@ -17,7 +15,7 @@
 							{# <img src="{{ asset('/path/to/placeholder-image.jpg') }}" alt="Placeholder Image" class="card-img-top"> #}
 						{% endif %}
 
-						<p style="color: #8c959e; margin-bottom: 16px;">
+						<p style="color: #8c959e; margin-bottom: 16px; margin-top: 10px;">
 							<span style="margin-bottom: 1.5em;"><i class="fa fa-calendar"></i> {{ trick.createdDate| date('d/m/Y') }} à {{ trick.createdDate | date('h:m') }}</span>
 							<span style="margin-bottom: 1.5em;"><img src="{{trick.author.avatar}}" class="rounded-circle" height="24" width="24"/> {{ trick.author.username }}</span>
 						</p>
@@ -37,7 +35,7 @@
 							<a href="{{ path('trick_showOne', {'trickSlug':trick.slug}) }}" class="btn btn-primary btn-custom">Voir ce Trick</a>
 						</div>
 
-						<div style="color: #8c959e; margin-bottom: 10px;">
+						<div style="color: #8c959e; margin-bottom: 10px; margin-top: 10px;">
 							{{ trick.comments.count() }}
 							{% if trick.comments.count() > 1 %} commentaires
 							{% else %} commentaire

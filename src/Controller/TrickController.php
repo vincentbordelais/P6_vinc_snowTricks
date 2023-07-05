@@ -280,7 +280,7 @@ class TrickController extends AbstractController
                 if (filesize($image) > 512000) {
                     $this->addFlash('warning', 'Vous ne pouvez pas télécharger une image de plus de 500 ko.'); 
                 } else {
-                // On renome de fichier image qu'on stocke en webp :
+                // On renmome le fichier image qu'on stocke en webp :
                 $imageFileName = md5(uniqid()) . '.webp';
                 // On copie physiquement le fichier dans le dossier uploads :
                 $image->move($this->getParameter('images_directory'), $imageFileName);
