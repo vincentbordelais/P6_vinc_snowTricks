@@ -4,8 +4,8 @@ namespace App\Controller;
 
 use App\Entity\Image;
 use App\Entity\Trick;
+use App\Entity\Video;
 use App\Entity\Comment;
-use App\Entity\VideoYT;
 use App\Form\TrickType;
 use App\Form\CommentType;
 use App\Repository\TrickRepository;
@@ -62,7 +62,7 @@ class TrickController extends AbstractController
             $trick->setAuthor($this->getUser());
             $trick->setSlug($this->slugger->slug($trick->getName()));
 
-            $this->importImagesAndVideo($trick, $form);
+            $this->importImages($trick, $form);
 
             $em->persist($trick);
             $em->flush();
@@ -73,7 +73,7 @@ class TrickController extends AbstractController
         }
 
         return $this->render('trick/new.html.twig', [
-            'formTrick' => $form,
+            'formTrick' => $form->createView(), // Utilisez createView() pour le rendu du formulaire
         ]);
     }
 
@@ -114,7 +114,7 @@ class TrickController extends AbstractController
     {
         $trick = $em->getRepository(Trick::class)->findOneBy(['slug' => $slug]);
         if (!$trick) {
-            throw $this->createNotFoundException('No trick found for slug '.$slug);
+            throw $this->createNotFoundException('Pas de Trick trouvé pour le slug ' . $slug);
         }
 
         // D'abord vérifier que l'utilisateur est authentifié
@@ -123,23 +123,25 @@ class TrickController extends AbstractController
         $this->denyAccessUnlessGranted("TRICK_EDIT", $trick); // ok
 
         $form = $this->createForm(TrickType::class, $trick);
-
         $form->handleRequest($request);
+
         if ($form->isSubmitted() && $form->isValid()) {
+            $this->importImages($trick, $form);
 
-            $this->importImagesAndVideo($trick, $form);
+            $videos = $form->get('videos')->getData();
 
-            $trick = $form->getData();
-            $trick->setUpdatedDate(new \DateTime());
-            // $trick->setCategory() Il n'y a pas de setCategory
-            $em->persist($trick);
+            foreach ($videos as $video) {
+                // Associer la vidéo au trick
+                $video->setTrick($trick);
+            }
+
             $em->flush();
             return $this->redirectToRoute('trick_home');
         }
 
         return $this->render('trick/edit.html.twig', [
             'trick' => $trick,
-            'formTrick' => $form,
+            'formTrick' => $form->createView(),
         ]);
     }
 
@@ -174,7 +176,6 @@ class TrickController extends AbstractController
         $em->flush();
         return $this->redirectToRoute('trick_home');
     }
-
 
     #[Route('/trick/{trickSlug}/commentaires', name: 'trick_getComments', methods: ["GET"])]
     // exemple: /trick/TestNom1/commentaires?page=3
@@ -212,7 +213,7 @@ class TrickController extends AbstractController
     {
         $image = $em->getRepository(Image::class)->findOneBy(['id' => $id]);
         if (!$image) {
-            throw $this->createNotFoundException('No image found for id '.$id);
+            throw $this->createNotFoundException('Aucune image trouvée pour l\'id '.$id);
         }
 
         // On récupère le contenu de la requête json sous forme de tableau
@@ -244,32 +245,23 @@ class TrickController extends AbstractController
     }
 
     #[Route('/tricks/suppression_video/{id}', name: 'trick_delete_video', methods: ['DELETE'])]
-    public function deleteVideo($id, Request $request, EntityManagerInterface $em): JsonResponse
+    public function deleteVideo($id, EntityManagerInterface $em): JsonResponse
     {
-        $videoYT = $em->getRepository(videoYT::class)->findOneBy(['id' => $id]);
-        if (!$videoYT) {
-            throw $this->createNotFoundException('No image found for id '.$id);
+        $video = $em->getRepository(Video::class)->findOneBy(['id' => $id]);
+        
+        if (!$video) {
+            return new JsonResponse(['error' => 'Aucune vidéo trouvée pour l\'id ' . $id], 404);
         }
 
-        $data = json_decode($request->getContent(), true);
+        $em->remove($video);
+        $em->flush();
 
-        if (!$videoYT) {
-            return new JsonResponse(['success' => false, 'error' => 'La vidéo n\'existe pas.'], 404);
-        }
-        if($this->isCsrfTokenValid('delete' . $videoYT->getId(), $data['_token'])){
-            $em->remove($videoYT);
-            $em->flush();
-
-            return new JsonResponse(['success' => true], 200);
-
-            return new JsonResponse(['error' => 'Erreur de suppression'], 400);
-        }
-
-        return new JsonResponse(['error' => 'Token invalide'], 400);
+        return new JsonResponse(['success' => true]);
     }
 
 
-    private function importImagesAndVideo(Trick $trick, FormInterface $form): void
+
+    private function importImages(Trick $trick, FormInterface $form): void
     {
         // On récupère les images saisies dans le formulaire :
         $images = $form->get('image')->getData();
@@ -290,20 +282,6 @@ class TrickController extends AbstractController
                 $trick->addImage($img);
                 }
             }
-        }
-        // On récupère la vidéo saisie dans le formulaire:
-        $videoUrl = $form->get('videoUrl')->getData();
-        if (!empty($videoUrl)) {
-            if (strpos($videoUrl, 'v=') !== false) {
-                $start = strpos($videoUrl, 'v=') + 2;
-                $videoId = substr($videoUrl, $start);
-                // On enregistre la vidéo
-                $vid = new VideoYT();
-                $vid->setYtVideoId($videoId);
-                $trick->setVideoYT($vid);
-            } else {
-                $this->addFlash('warning', 'URL de vidéo YouTube non valide.');
-            }
-        }
+        }   
     }
 }

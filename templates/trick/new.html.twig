@@ -1,25 +1,79 @@
 {% extends 'base.html.twig' %}
 {% form_theme formTrick 'bootstrap_5_layout.html.twig' %}
-{% block title %}Creation d'un Trick{% endblock %}
+{% block title %}Création d'un Trick{% endblock %}
 
 {% block body %}
-	<h2 style="margin: 30px;">Creation d'un Trick</h2>
+    <h2 style="margin: 30px;">Création d'un Trick</h2>
 
-	{{ form_start(formTrick, {'attr': {'novalidate': 'novalidate'}}) }}
+    {{ form_start(formTrick, {'attr': {'novalidate': 'novalidate'}}) }}
 
-	{{ form_row(formTrick.name, {'attr' : {'placeholder' : "Nom" }}) }}
+    {{ form_row(formTrick.name, {'attr' : {'placeholder' : "Nom" }}) }}
 
-	{{ form_row(formTrick.description, {'attr' : {'placeholder' : "Description" }}) }}
+    {{ form_row(formTrick.description, {'attr' : {'placeholder' : "Description" }}) }}
 
-	{{ form_row(formTrick.categories) }}
+    {{ form_row(formTrick.categories) }}
 
-	<p>Images</p>
-	{{ form_row(formTrick.image) }}
-	
-	<p>Vidéos</p>
-	{{ form_row(formTrick.videoUrl, {'attr' : {'placeholder' : "Saisissez l'Url d'une video YouTube" }}) }}
+    <p>Images</p>
+    {{ form_row(formTrick.image) }}
 
-	<button type="submit" class="btn btn-success">Créer le Trick</button>
+    <p>Vidéos</p>
+    <div id="video-container">
+        <!-- Champ de saisie vidéo initial -->
+        <div class="mb-3">
+            <input type="text" name="trick[videos][][url]" class="form-control" placeholder="Ajouter l'url d'une vidéo YouTube 1/8">
+        </div>
+    </div>
 
-	{{ form_end(formTrick) }}
+    <button type="button" id="add-video" class="btn btn-light mr-2" style="width: 200px; color: var(--bs-body-color);">Ajouter une vidéo 1/8</button>
+    <br>
+    <button type="submit" class="btn btn-success" style="margin-top: 12px;">Créer le Trick</button>
+
+    {{ form_end(formTrick) }}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const addButton = document.querySelector('#add-video');
+            const container = document.querySelector('#video-container');
+            let videoCount = 1; // Compte le nombre de champs de saisie vidéo créés
+            const form = document.querySelector('form'); // Sélectionnez le formulaire
+
+            addButton.addEventListener('click', function () {
+                if (videoCount < 8) { // Limitez le nombre de champs de saisie vidéo à 8
+                    videoCount++;
+                    const videoField = document.createElement('div');
+                    videoField.className = 'mb-3';
+                    videoField.innerHTML = `
+                        <input type="text" name="trick[videos][][url]" class="form-control" placeholder="Ajouter l'url d'une vidéo YouTube ${videoCount}/8">
+                    `;
+                    container.appendChild(videoField);
+
+                    // Met à jour le libellé du bouton
+                    addButton.textContent = `Ajouter une vidéo ${videoCount}/8`;
+
+                    if (videoCount === 8) {
+                        addButton.style.display = 'none'; // Masquer le bouton une fois que 8 champs sont ajoutés
+                    }
+                }
+            });
+
+            form.addEventListener('submit', function (event) {
+                // Validation des URL des vidéos YouTube avant la soumission du formulaire
+                const videoInputs = document.querySelectorAll('input[name^="trick[videos]"]');
+                for (const input of videoInputs) {
+                    const url = input.value.trim();
+                    if (url !== '' && !validateYouTubeUrl(url)) {
+                        event.preventDefault(); // Empêche la soumission du formulaire
+                        alert('URL de vidéo YouTube non valide.');
+                        break; // Arrête la validation après la première URL invalide
+                    }
+                }
+            });
+        });
+
+        function validateYouTubeUrl(url) {
+            var pattern = /^(http(s)?:\/\/)?((w){3}.)?youtube\.com\/watch\?v=[\w-]{11}$/;
+            return pattern.test(url);
+        }
+    </script>
+</div>
 {% endblock %}

@@ -8,8 +8,10 @@ use App\Repository\TrickRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: TrickRepository::class)]
+#[UniqueEntity(fields:"name", message:"Ce nom de figure existe déjà.")]
 class Trick
 {
     #[ORM\Id]
@@ -49,14 +51,16 @@ class Trick
     #[ORM\OneToMany(mappedBy: 'trick', targetEntity: Image::class, orphanRemoval: true, cascade: ['persist'])]
     private Collection $images;
 
-    #[ORM\OneToOne(mappedBy: 'trick', targetEntity: VideoYT::class, orphanRemoval: true, cascade:["persist"])]
-    private ?VideoYT $videoYT = null;
+    #[ORM\OneToMany(targetEntity: Video::class, mappedBy: 'trick', cascade:["persist", "remove"], orphanRemoval: true)]
+    #[Assert\Valid()]
+    private Collection $videos;
 
     public function __construct()
     {
         $this->comments = new ArrayCollection();
         $this->categories = new ArrayCollection();
         $this->images = new ArrayCollection();
+        $this->videos = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -223,19 +227,33 @@ class Trick
         return $this;
     }
 
-    public function getVideoYT(): ?VideoYT
+    /**
+     * @return Collection|Video[]
+     */
+    public function getVideos(): Collection
     {
-        return $this->videoYT;
+        return $this->videos;
     }
 
-    public function setVideoYT(VideoYT $videoYT): self
+    public function addVideo(Video $video): self
     {
-        // set the owning side of the relation if necessary
-        if ($videoYT->getTrick() !== $this) {
-            $videoYT->setTrick($this);
+        if (!$this->videos->contains($video)) {
+            $this->videos[] = $video;
+            $video->setTrick($this);
         }
 
-        $this->videoYT = $videoYT;
+        return $this;
+    }
+
+    public function removeVideo(Video $video): self
+    {
+        if ($this->videos->contains($video)) {
+            $this->videos->removeElement($video);
+            // set the owning side to null (unless already changed)
+            if ($video->getTrick() === $this) {
+                $video->setTrick(null);
+            }
+        }
 
         return $this;
     }

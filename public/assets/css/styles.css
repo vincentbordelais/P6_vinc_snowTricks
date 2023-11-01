@@ -6,38 +6,11 @@
 
 /* Styles pour les écrans larges */
 @media screen and (min-width: 992px) {
-
-  /* .border {
-    height: 300px;
-  } */
-
-  /* .btn-custom {
-    font-size: 1rem;
-    padding: 0.5rem 0.75rem;
-  } */
-  
-  /* .video-container {
-    position: relative;
-    height: 0;
-    overflow: hidden;
-    padding-bottom: 56.25%;
-  } */
-
-  /* .video-container iframe,
-  .video-container object,
-  .video-container embed {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-  } */
-
-  /* .video-custom iframe {
-    top: 0;
-    left: 0;
-    width: 150;
-    height: 84;
+  /* body {
+    font-size: 0.8em;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-size: 0.8em;
   } */
 }
 
@@ -49,81 +22,15 @@
   h1, h2, h3, h4, h5, h6 {
     font-size: 0.8em;
   } */
-
-  /* .border {
-    height: 250px;
-  } */
-
-  /* .btn-custom {
-    font-size: 0.875rem;
-    padding: 0.25rem 0.5rem;
-  } */
-  
-  /* .video-container {
-    position: relative;
-    height: 0;
-    overflow: hidden;
-    padding-bottom: 56.25%;
-  } */
-
-  /* .video-container iframe,
-  .video-container object,
-  .video-container embed {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-  } */
-
-  /* .video-custom iframe {
-    top: 0;
-    left: 0;
-    width: 150;
-    height: 84;
-  } */
 }
 
 /* Styles pour les écrans étroits */
 @media screen and (max-width: 767px) {
   /* body {
-    font-size: 1em;
+    font-size: 0.8em;
   }
   h1, h2, h3, h4, h5, h6 {
-    font-size: 0.6em;
-  } */
-
-  /* .border {
-    height: 200px;
-  } */
-
-  /* .btn-custom {
-    font-size: 0.8rem;
-    padding: 0.25rem 0.5rem;
-  } */
-  
-  /* .video-container {
-    position: relative;
-    height: 0;
-    overflow: hidden;
-    padding-bottom: 56.25%;
-  } */
-
-  /* .video-container iframe,
-  .video-container object,
-  .video-container embed {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 84px;
-  } */
-
-  /* .video-custom iframe {
-    top: 0;
-    left: 0;
-    width: 63.25;
-    height: 35.578;
+    font-size: 0.8em;
   } */
 }
 

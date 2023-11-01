@@ -14,27 +14,39 @@
 	{{ form_row(formTrick.categories, {'attr' : {'placeholder' : "Catégorie" }}) }}
 
 	<p>Images</p>
-	{% for image in trick.images %}
-		<div>
-			<img src="{{ asset('/uploads/images/' ~ image.name) }}" alt="Image" width="150">
-			<a href="{{ path('trick_delete_image', {id: image.id}) }}" image-link-delete data-token="{{ csrf_token('delete' ~ image.id) }}">Supprimer</a>
-		</div>
-	{% endfor %}
-	{{ form_row(formTrick.image) }}
 
-	<p>Vidéos</p>
-	{% if trick.videoYT %}
-		<div>
-			<iframe width="150" height="84" src="https://www.youtube.com/embed/{{ trick.videoYT.ytVideoId }}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-			<a href="{{ path('trick_delete_video', {id: trick.videoYT.id}) }}" video-link-delete data-token="{{ csrf_token('delete' ~ trick.videoYT.id) }}">Supprimer</a>
+	<div class="row mt-4">
+		{% for image in trick.images %}
+			<div class="col-md-3 col-sm-6 mb-3">
+				<img src="{{ asset('/uploads/images/' ~ image.name) }}" alt="Image" class="img-fluid">
+				<a href="{{ path('trick_delete_image', {id: image.id}) }}" image-link-delete data-token="{{ csrf_token('delete' ~ image.id) }}">Supprimer</a>
+			</div>
+		{% endfor %}
+		{{ form_row(formTrick.image) }}
+	</div>
+	
+	<div id="videos">
+		<p>Vidéos</p>
+		<div class="row mt-4">
+			{% for video in trick.videos %}
+				<div class="video col-md-3 col-sm-6 mb-3 embed-responsive embed-responsive-16by9">
+					<iframe src="{{ video.getEmbedUrl() }}" frameborder="0" allowfullscreen class="img-fluid"></iframe>
+					<a href="{{ path('trick_delete_video', {id: video.id}) }}" class="delete-video">Supprimer</a>
+					{{ form_row(formTrick.videos[loop.index0], {'attr': {'data-video-id': video.id, 'style': 'display: none;'}}) }}
+				</div>
+			{% endfor %}
 		</div>
-		{{ form_row(formTrick.videoUrl, {'attr': {'hidden': 'hidden'}}) }}
-	{% else %}
-		{{ form_row(formTrick.videoUrl, {'attr' : {'placeholder' : "Saisissez l'Url d'une video YouTube" }}) }}
-	{% endif %}
+		<div class="d-flex align-items-center mb-2">
+			<button type="button" id="add-video" class="btn btn-light mr-2" style="width: 150px; color: var(--bs-body-color);">Ajouter une vidéo</button>
+			<div id="new-video-input-container" style="display: none;" class="flex-grow-1">
+				<input type="text" class="form-control" name="trick[videos][][url]" placeholder="Saisir l'url d'une vidéo Youtube">
+			</div>
+		</div>
+	</div>
+		<button type="submit" class="btn btn-success" style="width: 150px; margin-top: 10px; margin-left: 10px;">Enregistrer</button>
 
-	<button type="submit" class="btn btn-success">Modifier le Trick</button>
-	{{ form_end(formTrick) }}
+		{{ form_end(formTrick) }}
+	</div>
 
 
 
@@ -81,43 +93,61 @@
 				});
 			}
 
-			let linkVideo = document.querySelector("[video-link-delete]");
+			// Gestion de l'ajout de vidéos
+			const addVideoButton = document.getElementById('add-video');
+			const videosContainer = document.getElementById('videos');
+			const newVideoInputContainer = document.getElementById('new-video-input-container');
 
-			// On met un écouteur d'évènements
-			linkVideo.addEventListener("click", function(e){
-				// On empêche la navigation
-				e.preventDefault();
+			addVideoButton.addEventListener('click', function () {
+				// Afficher le champ de saisie de la vidéo
+				newVideoInputContainer.style.display = 'block';
+			});
 
-				// On demande confirmation
-				if(confirm("Voulez-vous supprimer cette vidéo ?")){
 
-					// On envoie la requête ajax :
-					// fetch() envoye une requête HTTP DELETE au serveur, à l'URL spécifiée dans l'attribut href de l'élément HTML qui a déclenché l'événement.
-					fetch(this.getAttribute("href"), {
-						method: "DELETE",
+			// Gestion de la suppression de vidéos
+			videosContainer.addEventListener('click', function (event) {
+				if (event.target.classList.contains('delete-video')) {
+					event.preventDefault();
+					// console.log('Gestionnaire d\'événements click appelé.');
+
+					// Obtenir le conteneur vidéo parent
+					const videoParent = event.target.closest('.video');
+					// console.log(videoParent); // div
+
+					// Obtenir l'URL de suppression de la vidéo depuis l'attribut "href" du lien
+					const deleteUrl = event.target.getAttribute('href');
+					// console.log('deleteUrl:', deleteUrl); // deleteUrl: /tricks/suppression_video/272
+
+					// Envoyer la requête DELETE
+					fetch(deleteUrl, {
+						method: 'DELETE',
 						headers: {
-							// L'en-tête "X-Requested-With" indique que la demande est une demande AJAX
-							"X-Requested-With": "XMLHttpRequest",
-							// L'en-tête "Content-Type" indique que les données envoyées au serveur sont au format JSON.
-							"Content-Type": "application/json"
+							'X-Requested-With': 'XMLHttpRequest',
 						},
-						// Les données à envoyer avec la demande sont au format JSON et comprennent une paire clé:valeur. La valeur de la clé "_token" est extraite de l'attribut "data-token" de l'élément HTML qui a déclenché l'événement.
-						body: JSON.stringify({"_token": this.dataset.token})
-					// then() pour traiter la réponse HTTP renvoyée par le serveur, convertie au format JSON.
-					}).then(response => response.json())
-					// then() pour traiter les données JSON renvoyées par le serveur.
+					})
+					.then(response => {
+						// console.log('Passe1');
+						return response.json(); // Renvoie la réponse JSON au prochain `then`
+					})
 					.then(data => {
-						// Si les données contiennent la clé "success" avec une valeur de vrai, l'élément HTML parent de l'élément qui a déclenché l'événement est supprimé.
-						if(data.success){
-							this.parentElement.remove();
-						// Sinon, une alerte est affichée avec le message d'erreur renvoyé par le serveur dans la clé "error".
-						}else{
-							alert(data.error);
+						// console.log('Passe2');
+						// Vérifier la réponse du serveur
+						// console.log('Réponse du serveur (data) :', data);
+
+						// Gérer la réponse de la requête DELETE ici, par exemple, supprimer visuellement la vidéo
+						if (data.success) {
+							videoParent.remove(); // Supprimer visuellement la vidéo
+						} else {
+							alert('Erreur lors de la suppression de la vidéo : ' + data.error);
 						}
 					})
+					.catch(error => {
+						// Vérifier l'erreur en cas de problème
+						// console.error('Erreur lors de la suppression de la vidéo : ', error);
+					});
 				}
 			});
-	
 		</script>
+
 	{% endblock %}
 {% endblock %}

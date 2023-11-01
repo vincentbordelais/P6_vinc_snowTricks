@@ -3,6 +3,7 @@
 namespace App\Form;
 
 use App\Entity\Trick;
+use App\Form\VideoType;
 use App\Entity\Category;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Component\Form\AbstractType;
@@ -10,7 +11,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 
 class TrickType extends AbstractType
 {
@@ -46,10 +47,15 @@ class TrickType extends AbstractType
                 'required' => false,
                 'mapped' => false, // c une relation, ce champ n'est pas rempli dans la table Trick (il est dans la table Image) donc on doit mettre : mapped à false
             ])
-            ->add('videoUrl', TextType::class, [
-                'label' => false,
+            ->add('videos', CollectionType::class, [
+                'entry_type' => VideoType::class,
+                'entry_options' => ['label' => false, 'attr' => ['class' => 'video-url-input']],
                 'required' => false,
-                'mapped' => false, // parce que ce champ n'existe pas dans la table trick
+                'allow_add' => true,
+                'allow_delete' => true,
+                'by_reference' => false,
+                'label' => false,
+                // 'prototype' => false,
             ]);
     }
 

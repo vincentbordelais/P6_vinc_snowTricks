@@ -26,7 +26,7 @@ class UserFixtures extends Fixture
         return [];
     }
 
-    public function load(ObjectManager $manager): void
+    public function load(ObjectManager $manager): void // doctrine:fixtures:load
     {
         for ($i = 0; $i < count($this->nameData); $i++) {
             $user = new User();

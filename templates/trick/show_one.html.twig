@@ -4,7 +4,29 @@
 
 {% block body %}
 	<section class="trick">
-		<h2 class="metadata" style="margin: 30px;">{{ trick.name }}</h2>
+		<div class="metadata" style="margin: 30px;">
+			<div class="row">
+				<div class="col-9">
+					<h2>{{ trick.name }}</h2>
+				</div>
+				<div class="col-3">
+					<div class="content">
+						{% if is_granted("TRICK_EDIT", trick) %} {# vérifie les autorisations avec le voter #}
+							<a href="{{ path('trick_edit', {'slug':trick.slug}) }}" class="btn btn-warning">
+								<i class="fas fa-edit"></i>
+							</a>
+						{% endif %}
+						{% if is_granted("TRICK_DELETE", trick) %} {# vérifie les autorisations avec le voter #}
+							<a href="{{ path('trick_delete', {'slug':trick.slug}) }}" class="btn btn-danger" onclick="return confirm('Voulez-vous supprimer ce Trick ?')">
+								<i class="fas fa-trash-alt"></i>
+							</a>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+		</div>
+
+
 		<div style="color: #8c959e;">
 			Créé le {{ trick.createdDate| date('d/m/Y') }} à {{ trick.createdDate | date('h:m') }}
 			puis modifier le {{ trick.updatedDate| date('d/m/Y') }} à {{ trick.updatedDate | date('h:m') }}
@@ -27,36 +49,25 @@
 
 		<div class="row mt-4">
 			{% for image in trick.getImages() %} {# ou: in trick.images #}
-				<div class="col-md-3 col-sm-6 mb-3">
+				<div class="col-12 mb-3">
 					<a href="{{ asset('/uploads/images/' ~ image.name) }}" target="_blank">
-            			<img src="{{ asset('/uploads/images/' ~ image.name) }}" alt="Image" class="img-fluid">
+            			<img src="{{ asset('/uploads/images/' ~ image.name) }}" alt="Image" class="img-fluid" width="528" height="297">
         			</a>
 				</div>
 			{% endfor %}
+		</div>
 
-			{% if trick.videoYT %}
-				<div class="col-md-3 col-sm-6 mb-3">
-					<div class="embed-responsive embed-responsive-16by9">
-						<iframe src="https://www.youtube.com/embed/{{ trick.videoYT.ytVideoId }}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;" allowfullscreen></iframe>
-					</div>
+		<div class="row mt-4">
+			{% for video in trick.videos %}
+				<div class="col-12 mb-3 mr-3">
+					{% if video.url is not null %}
+						<div class="embed-responsive embed-responsive-16by9">
+                			<iframe src="{{ video.getEmbedUrl() }}" class="embed-responsive-item" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;" allowfullscreen class="img-fluid" width="528" height="297"></iframe>
+						</div>
+					{% endif %}
 				</div>
-			{% endif %}
-		</div>
-	</section>
-
-	<section class="trick">
-		<div class="content">
-			{% if is_granted("TRICK_EDIT", trick) %} {# vérifie les autorisations avec le voter #}
-				<a href="{{ path('trick_edit', {'slug':trick.slug}) }}" class="btn btn-warning">
-					<i class="fas fa-edit"></i>
-				</a>
-			{% endif %}
-			{% if is_granted("TRICK_DELETE", trick) %} {# vérifie les autorisations avec le voter #}
-				<a href="{{ path('trick_delete', {'slug':trick.slug}) }}" class="btn btn-danger" onclick="return confirm('Voulez-vous supprimer ce Trick ?')">
-					<i class="fas fa-trash-alt"></i>
-				</a>
-			{% endif %}
-		</div>
+			{% endfor %}
+		</div>		
 	</section>
 
 	<section class="content">
@@ -107,6 +118,7 @@
 				url: '/trick/' + '{{ trickSlug }}' + '/commentaires?page=' + page,
 				dataType: 'json',				
 				success: function (data) {
+					var commentCount = 0;
 					// On boucle une page :
 					if (typeof data.commentsData !== 'undefined') {
 						for (var i = 0; i < data.commentsData.length; i++) {
@@ -117,18 +129,19 @@
 
 							// console.log(data.commentsData[i].user.avatar);
 
-							// Création de l'élément avatar
-							var avatar = $("<img>")
-							.attr("src", data.commentsData[i].user.avatar)
-							.attr("height", "24")
-							.attr("width", "24")
-							.addClass("rounded-circle")
-							.attr("alt", "Avatar de " + data.commentsData[i].user.username);
-
 							// Création de l'élément username
 							var username = $("<span>")
 								.text(data.commentsData[i].user.username)
 								.addClass("username");
+							username.append(" ");
+
+							// Création de l'élément avatar
+							var avatar = $("<img>")
+								.attr("src", data.commentsData[i].user.avatar)
+								.attr("height", "24")
+								.attr("width", "24")
+								.addClass("rounded-circle")
+								.attr("alt", "Avatar de " + data.commentsData[i].user.username);
 
 							// Création de l'élément commentaire
 							var com = $("<p>")
@@ -151,6 +164,11 @@
 							} else {
 								$("#js-comments").append(com);
 							}
+
+							// Alterner le fond gris si pair
+							var backgroundColor = commentCount %2 === 0 ? '#f0f0f0':'transparent';
+							com.css('background-color', backgroundColor);
+							commentCount ++;
 						}
 						if (page >= data.totalNumberOfPages) {
 							morePages = false;

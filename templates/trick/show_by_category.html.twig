@@ -7,6 +7,7 @@
 		<a href="{{ path('category_showOne', {'slug':categorySlug}) }}" title="Voir la définition de cette catégorie"> {{ categorySlug }} </a>
 	</h2>
 	<div class="row mt-4">
+		{% if tricksPagination %}
 		{% for trick in tricksPagination.tricksPerPage %}
 			<div class="col-3 mb-3">
 				<div class="card h-100">
@@ -50,12 +51,13 @@
 				</div>
 			</div>
 		{% endfor %}
+		{% endif %}
 
 	{% set path = 'trick_showByCategory' %}
 	{% set param1 = {'categorySlug':categorySlug, 'page':currentPage-1} %}
 	{% set param2 = {'categorySlug':categorySlug, 'page':currentPage} %}
 	{% set param3 = {'categorySlug':categorySlug, 'page':currentPage+1} %}
-	{% set totalOfPages = tricksPagination.totalOfPages %}
+	{% if tricksPagination %}{% set totalOfPages = tricksPagination.totalOfPages %}{% endif %}
 	{% set currentPage = currentPage %}
 	{% include "_partials/_pagination.html.twig" %}
 
