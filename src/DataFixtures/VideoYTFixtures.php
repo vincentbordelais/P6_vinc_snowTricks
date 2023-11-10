@@ -3,11 +3,10 @@
 namespace App\DataFixtures;
 
 use App\Entity\Video;
-use App\DataFixtures\TrickFixtures;
 use App\Repository\TrickRepository;
-use Doctrine\Persistence\ObjectManager;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
+use Doctrine\Persistence\ObjectManager;
 
 class VideoYTFixtures extends Fixture implements DependentFixtureInterface
 {
@@ -76,7 +75,7 @@ class VideoYTFixtures extends Fixture implements DependentFixtureInterface
             }
         }
         $manager->flush();
-    }    
+    }
 
     private function getRandomVideoUrlByCategory(string $slug): ?string
     {

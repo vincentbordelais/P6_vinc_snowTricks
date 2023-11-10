@@ -2,16 +2,16 @@
 
 namespace App\Entity;
 
+use App\Repository\TrickRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\TrickRepository;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\Common\Collections\ArrayCollection;
-use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: TrickRepository::class)]
-#[UniqueEntity(fields:"name", message:"Ce nom de figure existe déjà.")]
+#[UniqueEntity(fields: "name", message: "Ce nom de figure existe déjà.")]
 class Trick
 {
     #[ORM\Id]
@@ -51,7 +51,7 @@ class Trick
     #[ORM\OneToMany(mappedBy: 'trick', targetEntity: Image::class, orphanRemoval: true, cascade: ['persist'])]
     private Collection $images;
 
-    #[ORM\OneToMany(targetEntity: Video::class, mappedBy: 'trick', cascade:["persist", "remove"], orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Video::class, mappedBy: 'trick', cascade: ["persist", "remove"], orphanRemoval: true)]
     #[Assert\Valid()]
     private Collection $videos;
 

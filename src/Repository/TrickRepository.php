@@ -66,7 +66,7 @@ class TrickRepository extends ServiceEntityRepository
         $totalOfPages = ceil($paginator->count() / $limit); // ceil = arrondi supérieur, $paginator->count() = nbre de tricks
 
         // On remplie notre tableau $result :
-        $result['tricksPerPage']  = $tricksPerPage;
+        $result['tricksPerPage'] = $tricksPerPage;
         $result['totalOfPages'] = $totalOfPages;
         $result['limit'] = $limit;
 
@@ -103,7 +103,7 @@ class TrickRepository extends ServiceEntityRepository
         $totalOfPages = ceil($paginator->count() / $limit); // ceil = arrondi supérieur, $paginator->count() = nbre de tricks
 
         // On remplie notre tableau $result :
-        $result['tricksPerPage']  = $tricksPerPage;
+        $result['tricksPerPage'] = $tricksPerPage;
         $result['totalOfPages'] = $totalOfPages;
         $result['limit'] = $limit;
 

@@ -3,12 +3,10 @@
 namespace App\DataFixtures;
 
 use App\Entity\Trick;
-use App\DataFixtures\UserFixtures;
-use App\DataFixtures\CategoryFixtures;
-use Doctrine\Persistence\ObjectManager;
 use Doctrine\Bundle\FixturesBundle\Fixture;
-use Symfony\Component\String\Slugger\SluggerInterface;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
+use Doctrine\Persistence\ObjectManager;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 class TrickFixtures extends Fixture implements DependentFixtureInterface
 {
@@ -26,9 +24,7 @@ class TrickFixtures extends Fixture implements DependentFixtureInterface
 
     public function load(ObjectManager $manager): void
     {
-
         for ($i = 1; $i <= 10; $i++) {
-
             $trick = new Trick();
             // Choisir aléatoirement un auteur parmi les users :
             $author = $this->getReference('user_' . mt_rand(0, 4));
@@ -36,7 +32,7 @@ class TrickFixtures extends Fixture implements DependentFixtureInterface
             // Récupérer aléatoirement la référence de la catégorie :
             $categoryReference = $this->getReference('category_' . mt_rand(1, 5));
             
-            $trick->setName("Nom du trick n°".$i)
+            $trick->setName("Nom du trick n°" . $i)
                 ->setDescription("Description du trick n°$i")
                 ->setCreatedDate(new \DateTime())
                 ->setUpdatedDate(new \DateTime())

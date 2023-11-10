@@ -2,23 +2,23 @@
 
 namespace App\Controller;
 
+use App\Entity\Comment;
 use App\Entity\Image;
 use App\Entity\Trick;
 use App\Entity\Video;
-use App\Entity\Comment;
-use App\Form\TrickType;
 use App\Form\CommentType;
-use App\Repository\TrickRepository;
+use App\Form\TrickType;
 use App\Repository\CommentRepository;
+use App\Repository\TrickRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\String\Slugger\SluggerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 class TrickController extends AbstractController
 {
@@ -82,7 +82,7 @@ class TrickController extends AbstractController
     {
         // Récupération du trick associé au slug :
         $trick = $trickRepository->findOneBy(['slug' => $trickSlug]);
-        if(!$trick){
+        if (!$trick) {
             throw new NotFoundHttpException("Pas de Trick trouvé"); // c'est pas redondant avec "Page non trouvée"?
         }
 
@@ -150,7 +150,7 @@ class TrickController extends AbstractController
     {
         $trick = $em->getRepository(Trick::class)->findOneBy(['slug' => $slug]);
         if (!$trick) {
-            throw $this->createNotFoundException('No trick found for slug '.$slug);
+            throw $this->createNotFoundException('No trick found for slug ' . $slug);
         }
 
         // D'abord vérifier que l'utilisateur est authentifié
@@ -161,12 +161,12 @@ class TrickController extends AbstractController
         // On supprime physiquement les images :
         $images = $trick->getImages();
         // var_dump($images);
-        if($images){
+        if ($images) {
             foreach ($images as $image) {
                 // on récupère le chemin :
                 $nomImage = $this->getParameter("images_directory") . '/' . $image->getName();
                 // on vérifie si l'image existe :
-                if(file_exists($nomImage)){ // return true
+                if (file_exists($nomImage)) { // return true
                     // on la supprime :
                     unlink($nomImage);
                 }
@@ -213,7 +213,7 @@ class TrickController extends AbstractController
     {
         $image = $em->getRepository(Image::class)->findOneBy(['id' => $id]);
         if (!$image) {
-            throw $this->createNotFoundException('Aucune image trouvée pour l\'id '.$id);
+            throw $this->createNotFoundException('Aucune image trouvée pour l\'id ' . $id);
         }
 
         // On récupère le contenu de la requête json sous forme de tableau
@@ -223,7 +223,7 @@ class TrickController extends AbstractController
         // Lorsque le client envoie une requête au serveur, il doit inclure le jeton CSRF dans la requête pour prouver qu'il est bien un utilisateur autorisé et non un attaquant.
         // isCsrfTokenValid() prend 2 paramètres : la clé utilisée pour stocker le jeton CSRF dans la session du client, qui est générée en concaténant la chaîne "delete" avec l'ID de l'image à supprimer, et la valeur du jeton CSRF qui a été envoyée avec la requête HTTP.
         // isCsrfTokenValid() compare la valeur du jeton CSRF stockée dans la session avec la valeur envoyée dans la requête AJAX pour vérifier que l'utilisateur qui effectue la demande est autorisé à le faire. Icis, la clé utilisée pour stocker le jeton CSRF dans la session est générée en concaténant la chaîne "delete" avec l'ID de l'image à supprimer.
-        if($this->isCsrfTokenValid('delete' . $image->getId(), $data['_token'])){
+        if ($this->isCsrfTokenValid('delete' . $image->getId(), $data['_token'])) {
             // Si le token csrf est valide:
             // On supprimer le fichier de l'image
             $imagePath = $this->getParameter('images_directory') . '/' . $image->getName();
@@ -270,18 +270,18 @@ class TrickController extends AbstractController
         } else {
             foreach ($images as $image) {
                 if (filesize($image) > 512000) {
-                    $this->addFlash('warning', 'Vous ne pouvez pas télécharger une image de plus de 500 ko.'); 
+                    $this->addFlash('warning', 'Vous ne pouvez pas télécharger une image de plus de 500 ko.');
                 } else {
-                // On renmome le fichier image qu'on stocke en webp :
-                $imageFileName = md5(uniqid()) . '.webp';
-                // On copie physiquement le fichier dans le dossier uploads :
-                $image->move($this->getParameter('images_directory'), $imageFileName);
-                // On stocke le nom de l'image dans la BDD : On va créer une nouvelle instance de l'entité image dans laquelle on faire un setName() puis on va ajouter cette instance dans l'entité Trick.
-                $img = new Image();
-                $img->setName($imageFileName);
-                $trick->addImage($img);
+                    // On renmome le fichier image qu'on stocke en webp :
+                    $imageFileName = md5(uniqid()) . '.webp';
+                    // On copie physiquement le fichier dans le dossier uploads :
+                    $image->move($this->getParameter('images_directory'), $imageFileName);
+                    // On stocke le nom de l'image dans la BDD : On va créer une nouvelle instance de l'entité image dans laquelle on faire un setName() puis on va ajouter cette instance dans l'entité Trick.
+                    $img = new Image();
+                    $img->setName($imageFileName);
+                    $trick->addImage($img);
                 }
             }
-        }   
+        }
     }
 }

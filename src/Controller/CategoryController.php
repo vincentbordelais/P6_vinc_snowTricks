@@ -6,12 +6,12 @@ use App\Entity\Category;
 use App\Form\CategoryType;
 use App\Repository\CategoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\Security\Core\Annotation\IsGranted;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 // #[IsGranted('ROLE_ADMIN')]
 class CategoryController extends AbstractController
@@ -35,7 +35,6 @@ class CategoryController extends AbstractController
     #[Route('/categorie/creer', name: 'category_new')]
     public function newCategory(Request $request, EntityManagerInterface $em): Response
     {
-
         $category = new Category();
 
         $form = $this->createForm(CategoryType::class, $category);
@@ -44,7 +43,7 @@ class CategoryController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $category = $form->getData();
             $category->setSlug($this->slugger->slug($category->getName()));
-            // $category->setTrick(); Il n'y a pas de setTrick(), 
+            // $category->setTrick(); Il n'y a pas de setTrick(),
             $em->persist($category);
             $em->flush();
 
@@ -63,7 +62,7 @@ class CategoryController extends AbstractController
     {
         $category = $em->getRepository(Category::class)->findOneBy(['slug' => $slug]);
         if (!$category) {
-            throw $this->createNotFoundException('No category found for slug '.$slug);
+            throw $this->createNotFoundException('No category found for slug ' . $slug);
         }
         return $this->render('category/show_one.html.twig', [
             'category' => $category
@@ -75,7 +74,7 @@ class CategoryController extends AbstractController
     {
         $category = $em->getRepository(Category::class)->findOneBy(['slug' => $slug]);
         if (!$category) {
-            throw $this->createNotFoundException('No category found for slug '.$slug);
+            throw $this->createNotFoundException('No category found for slug ' . $slug);
         }
 
         $form = $this->createForm(CategoryType::class, $category);
@@ -85,7 +84,7 @@ class CategoryController extends AbstractController
             $category = $form->getData();
             // dump($category);
             $category->setSlug($this->slugger->slug($category->getName()));
-            // $category->setTrick(); Il n'y a pas de setTrick(), 
+            // $category->setTrick(); Il n'y a pas de setTrick(),
             $em->persist($category);
             $em->flush();
             return $this->redirectToRoute('category_showAll');
@@ -102,7 +101,7 @@ class CategoryController extends AbstractController
     {
         $category = $em->getRepository(Category::class)->findOneBy(['slug' => $slug]);
         if (!$category) {
-            throw $this->createNotFoundException('No category found for slug '.$slug);
+            throw $this->createNotFoundException('No category found for slug ' . $slug);
         }
         
         $em->remove($category);

@@ -2,9 +2,8 @@
 
 namespace App\Entity;
 
-use App\Entity\Trick;
-use Doctrine\ORM\Mapping as ORM;
 use App\Repository\VideoRepository;
+use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: VideoRepository::class)]
@@ -12,11 +11,11 @@ class Video
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type:"integer")]
+    #[ORM\Column(type: "integer")]
     private $id;
 
-    #[ORM\Column(type:"string", length: 255, nullable: true)]
-    #[Assert\Url(message:"L'URL '{{ value }}' n'est pas une URL valide.")]
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
+    #[Assert\Url(message: "L'URL '{{ value }}' n'est pas une URL valide.")]
     private $url;
 
     #[ORM\ManyToOne(targetEntity: Trick::class, inversedBy: 'videos')]

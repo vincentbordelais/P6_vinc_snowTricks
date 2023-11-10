@@ -3,9 +3,9 @@
 namespace App\Repository;
 
 use App\Entity\Comment;
-use Doctrine\Persistence\ManagerRegistry;
-use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<Comment>
@@ -69,7 +69,7 @@ class CommentRepository extends ServiceEntityRepository
         $totalNumberOfPages = ceil($paginator->count() / $limit); // ceil = arrondi supérieur
 
         // On remplie notre tableau $result :
-        $result['commentsData']  = $commentsData;
+        $result['commentsData'] = $commentsData;
         $result['currentPage'] = $currentPage;
         $result['totalNumberOfPages'] = $totalNumberOfPages;
         $result['limit'] = $limit;

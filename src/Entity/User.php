@@ -2,16 +2,16 @@
 
 namespace App\Entity;
 
-use DateTime;
-use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
-use Doctrine\Common\Collections\Collection;
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
-use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Security\Core\User\UserInterface;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[UniqueEntity(fields: ['email'], message: 'Un compte existe déjà avec cette adresse e-mail')]
@@ -73,7 +73,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?bool $login_is_verified = false;
 
-    #[ORM\Column(length: 255, nullable:true)]
+    #[ORM\Column(length: 255, nullable: true)]
     private $login_token;
 
     #[ORM\Column(type: "datetime", nullable: true)]
@@ -281,7 +281,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * Get the value of login_token
-     */ 
+     */
     public function getLoginToken()
     {
         return $this->login_token;
@@ -291,7 +291,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * Set the value of login_token
      *
      * @return  self
-     */ 
+     */
     public function setLoginToken($login_token)
     {
         $this->login_token = $login_token;
@@ -301,7 +301,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * Get the value of login_token_expires_at
-     */ 
+     */
     public function getLoginTokenExpiresAt()
     {
         return $this->login_token_expires_at;
@@ -311,7 +311,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * Set the value of login_token_expires_at
      *
      * @return  self
-     */ 
+     */
     public function setLoginTokenExpiresAt($login_token_expires_at)
     {
         $this->login_token_expires_at = $login_token_expires_at;
@@ -321,7 +321,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * Get the value of password_token
-     */ 
+     */
     public function getPasswordToken()
     {
         return $this->password_token;
@@ -331,7 +331,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * Set the value of password_token
      *
      * @return  self
-     */ 
+     */
     public function setPasswordToken($password_token)
     {
         $this->password_token = $password_token;

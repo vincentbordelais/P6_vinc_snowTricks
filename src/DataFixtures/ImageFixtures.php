@@ -3,16 +3,15 @@
 namespace App\DataFixtures;
 
 use App\Entity\Image;
-use App\DataFixtures\TrickFixtures;
 use App\Repository\TrickRepository;
-use Doctrine\Persistence\ObjectManager;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
+use Doctrine\Persistence\ObjectManager;
 
 class ImageFixtures extends Fixture implements DependentFixtureInterface
 {
-    const SOURCE_DIR_IMAGEFIXTURES = __DIR__ . '/../../public/forDataFixtures/images/';
-    const DEST_DIR_IMAGEFIXTURES = __DIR__ . '/../../public/uploads/images/';
+    public const SOURCE_DIR_IMAGEFIXTURES = __DIR__ . '/../../public/forDataFixtures/images/';
+    public const DEST_DIR_IMAGEFIXTURES = __DIR__ . '/../../public/uploads/images/';
 
     private $trickRepository;
 
@@ -52,7 +51,7 @@ class ImageFixtures extends Fixture implements DependentFixtureInterface
                 $image->setName($destinationImageFile);
                 $image->setTrick($trick);
 
-                $manager->persist($image); 
+                $manager->persist($image);
             }
         }
 
@@ -70,5 +69,4 @@ class ImageFixtures extends Fixture implements DependentFixtureInterface
 
         return $files[array_rand($files)];
     }
-
 }

@@ -2,20 +2,20 @@
 
 namespace App\Controller;
 
-use DateTime;
-use DateInterval;
-use DateTimeZone;
 use App\Entity\User;
 use App\Form\RegistrationType;
-use App\Service\SendMailService;
 use App\Repository\UserRepository;
+use App\Service\SendMailService;
+use DateInterval;
+use DateTime;
+use DateTimeZone;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Routing\Annotation\Route;
 
 class RegistrationController extends AbstractController
 {
@@ -39,12 +39,13 @@ class RegistrationController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $user->setPassword($userPasswordHasher->hashPassword(
-                $user, $form->get('password')->getData()
+                $user,
+                $form->get('password')->getData()
             ));
             $token = bin2hex(random_bytes(16));
             $user->setLoginToken($token);
             $now = new DateTime('now', new DateTimeZone('Europe/Paris'));
-            $expirationDate = $now->add(new DateInterval('PT'. 30 .'S'));
+            $expirationDate = $now->add(new DateInterval('PT' . 30 . 'S'));
             $user->setLoginTokenExpiresAt($expirationDate);
             $user->setRoles(['ROLE_USER']);
 
@@ -64,7 +65,9 @@ class RegistrationController extends AbstractController
                 'no-reply@snowtricks.fr', // from
                 $user->getEmail(),  // to
                 'SnowTricks - Activation de votre compte', // subject
-                'registration/activation_email.html.twig',['user' => $user, 'token' => $token]); // context
+                'registration/activation_email.html.twig',
+                ['user' => $user, 'token' => $token]
+            ); // context
 
             return $this->redirectToRoute('registration_pre_activation', ['email' => $user->getEmail()]);
         }
@@ -74,7 +77,7 @@ class RegistrationController extends AbstractController
         ]);
     }
 
-    #[Route('/inscription/pre_activation/{email}', name: 'registration_pre_activation')]  // page bienvenu
+    #[Route('/inscription/pre_activation/{email}', name: 'registration_pre_activation')] // page bienvenu
     public function checkEmail(string $email): Response
     {
         $this->addFlash('success', 'Un email d\'activation vient de vous être envoyé à l\'adresse "' . $email . '". Le lien expirera dans 3 heures.');
@@ -130,7 +133,7 @@ class RegistrationController extends AbstractController
         if ($user->getLoginTokenExpiresAt()->format('Y-m-d\TH:i:s\Z') < $now->format('Y-m-d\TH:i:s\Z')) {
             $token = bin2hex(random_bytes(16)); // génère un nouveau token
             $user->setLoginToken($token);
-            $expirationDate = $now->add(new DateInterval('PT'. 30 .'S'));
+            $expirationDate = $now->add(new DateInterval('PT' . 30 . 'S'));
             $user->setLoginTokenExpiresAt($expirationDate);
             $this->entityManager->persist($user);
             $this->entityManager->flush();
@@ -139,10 +142,11 @@ class RegistrationController extends AbstractController
                 'no-reply@snowtricks.fr', // from
                 $user->getEmail(),  // to
                 'SnowTricks - Activation de votre compte', // subject
-                'registration/activation_email.html.twig',['user' => $user, 'token' => $token]); // context
+                'registration/activation_email.html.twig',
+                ['user' => $user, 'token' => $token]
+            ); // context
 
             return $this->redirectToRoute('registration_pre_activation', ['email' => $user->getEmail()]);
-            
         }
         // Le token est toujours valide
         $user->setLoginIsVerified(true);
